@@ -1,0 +1,1007 @@
+openapi: 3.0.0
+info:
+  contact:
+    email: harmony-support@factom.com
+    name: Factom Inc.
+    url: https://docs.harmony.factom.com
+  description: An easy to use API that helps you access the Factom blockchain.
+  title: Harmony Connect
+  version: 1.0.17
+servers:
+- url: https://connect-shared-sandbox-2445582615332.production.gw.apicast.io/v1
+tags:
+- description: Get information about the API
+  name: Info
+- description: Commands dealing with Chains
+  name: Chains
+- description: Commands dealing with Entries
+  name: Entries
+paths:
+  /:
+    get:
+      description: Request general information about the Connect API such as the version and available endpoints.
+      operationId: getAllInfo
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllInfo'
+          description: OK
+      security:
+      - AppId: []
+      - AppKey: []
+      summary: API Info
+      tags:
+      - Info
+  /chains/{chain_id}:
+    get:
+      description: Get information about a specific chain on Connect
+      operationId: getChainByID
+      parameters:
+      - description: Chain identifier
+        example: 285904
+        explode: false
+        in: path
+        name: chain_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chain'
+          description: OK
+      security:
+      - AppId: []
+      - AppKey: []
+      summary: Get Chain Info
+      tags:
+      - Chains
+  /chains:
+    get:
+      description: Returns all of the chains on factomd.
+      operationId: getChains
+      parameters:
+      - description: The number of items you would like back in each page.
+        example: "15"
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      - description: The page you would like to request. The first page offset is Zero.
+        example: "2"
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      - description: 'The immutability stages you want to restrict results to. You
+          can choose any from `replicated`, `factom`, and `anchored`. If you would
+          like to search among multiple stages, send them in a comma separated string.
+          For example: `''multi_az,factom''`.'
+        explode: true
+        in: query
+        name: stages
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChainList'
+          description: OK
+      security:
+      - AppId: []
+      - AppKey: []
+      summary: Get All Chains
+      tags:
+      - Chains
+    post:
+      description: Create a new chain. Each chain functions as a mini-blockchain such that all of the entries are linked. Every entry relies on data from previous entries in the chain. Any unauthorized alterations to any of these entries can be detected. Be aware that data entered into the `content` and `external_ids` fields must be in Base64 format. Sending this request will cause Connect to create the first entry of the chain. The data entered into the `content` and `external_id` fields will be applied to this entry.
+      operationId: postChain
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChainCreate'
+        required: true
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChainShort'
+          description: Created
+      security:
+      - AppId: []
+      - AppKey: []
+      summary: Create a Chain
+      tags:
+      - Chains
+  /chains/search:
+    post:
+      description: Finds all of the chains with `external_ids` that match what you've entered. External IDs must be sent in Base64 format.
+      operationId: postChainSearch
+      parameters:
+      - description: The number of items you would like back in each page.
+        example: "15"
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      - description: The page you would like to request. The first page offset is Zero.
+        example: "2"
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      requestBody:
+        $ref: '#/components/requestBodies/postChainSearchBody'
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChainList'
+          description: OK
+      security:
+      - AppId: []
+      - AppKey: []
+      summary: Search Chains
+      tags:
+      - Chains
+  /chains/{chain_id}/entries/{entry_hash}:
+    get:
+      description: Returns information about a specific entry on Connect. The requested entry must be specified using the Chain ID and Entry Hash.
+      operationId: getEntryByHash
+      parameters:
+      - description: Chain identifier
+        example: 285904
+        explode: false
+        in: path
+        name: chain_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The SHA256 hash of the entry.
+        example: db
+        explode: false
+        in: path
+        name: entry_hash
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entry'
+          description: OK
+      security:
+      - AppId: []
+      - AppKey: []
+      summary: Get Entry Info
+      tags:
+      - Entries
+  /chains/{chain_id}/entries:
+    get:
+      description: List all entries contained on the specified chain.
+      operationId: getEntriesByChainID
+      parameters:
+      - description: The number of items you would like back in each page.
+        example: "15"
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      - description: The page you would like to request. The first page offset is Zero.
+        example: "2"
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      - description: Chain identifier
+        example: 285904
+        explode: false
+        in: path
+        name: chain_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: 'The immutability stages you want to restrict results to. You
+          can choose any from `replicated`, `factom`, and `anchored`. If you would
+          like to search among multiple stages, send them in a comma separated string.
+          For example: `''multi_az,factom''`.'
+        explode: true
+        in: query
+        name: stages
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryList'
+          description: OK
+      security:
+      - AppId: []
+      - AppKey: []
+      summary: Get Chain's Entries
+      tags:
+      - Entries
+    post:
+      description: Create a new entry for the selected chain. Content and external id must be uploaded in Base64 format.
+      operationId: postEntryToChainID
+      parameters:
+      - description: Chain identifier
+        example: 285904
+        explode: false
+        in: path
+        name: chain_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntryCreate'
+        required: true
+      responses:
+        202:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryShort'
+          description: Accepted
+        422:
+          content:
+            application/json:
+              schema:
+                type: object
+          description: Unprocessable entity
+      security:
+      - AppId: []
+      - AppKey: []
+      summary: Create an Entry
+      tags:
+      - Entries
+  /chains/{chain_id}/entries/first:
+    get:
+      description: Retrieve the first entry that has been saved to this chain.
+      operationId: getFirstEntry
+      parameters:
+      - description: Chain identifier
+        example: 285904
+        explode: false
+        in: path
+        name: chain_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entry'
+          description: OK
+      security:
+      - AppId: []
+      - AppKey: []
+      summary: Get Chain's First Entry
+      tags:
+      - Entries
+  /chains/{chain_id}/entries/last:
+    get:
+      description: Retrieve the last entry that has been saved to this chain.
+      operationId: getLastEntry
+      parameters:
+      - description: Chain identifier
+        example: 285904
+        explode: false
+        in: path
+        name: chain_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entry'
+          description: OK
+      security:
+      - AppId: []
+      - AppKey: []
+      summary: Get Chain's Last Entry
+      tags:
+      - Entries
+  /chains/{chain_id}/entries/search:
+    post:
+      description: Find all of the entries within the specified chain that have the requested `external_ids`.
+      operationId: postEntriesSearch
+      parameters:
+      - description: Chain identifier
+        example: 285904
+        explode: false
+        in: path
+        name: chain_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The number of items you would like back in each page.
+        example: "15"
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      - description: The page you would like to request. The first page offset is Zero.
+        example: "2"
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      requestBody:
+        $ref: '#/components/requestBodies/postChainSearchBody'
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntrySearchResponse'
+          description: OK
+      security:
+      - AppId: []
+      - AppKey: []
+      summary: Search Chain's Entries
+      tags:
+      - Entries
+components:
+  parameters:
+    hash:
+      description: The hash of an entry, admin block, or entry credit block.
+      example: 285904
+      explode: false
+      in: path
+      name: hash
+      required: true
+      schema:
+        type: string
+      style: simple
+    keymr:
+      description: Key Merkle Root
+      example: 285904
+      explode: false
+      in: path
+      name: keymr
+      required: true
+      schema:
+        type: string
+      style: simple
+    address:
+      description: Factoid wallet address
+      example: 285904
+      explode: false
+      in: path
+      name: address
+      required: true
+      schema:
+        type: string
+      style: simple
+    chain_id:
+      description: Chain identifier
+      example: 285904
+      explode: false
+      in: path
+      name: chain_id
+      required: true
+      schema:
+        type: string
+      style: simple
+    entry_hash:
+      description: The SHA256 hash of the entry.
+      example: db
+      explode: false
+      in: path
+      name: entry_hash
+      required: true
+      schema:
+        type: string
+      style: simple
+    offset:
+      description: The page you would like to request. The first page offset is Zero.
+      example: "2"
+      explode: true
+      in: query
+      name: offset
+      required: false
+      schema:
+        format: int32
+        type: integer
+      style: form
+    limit:
+      description: The number of items you would like back in each page.
+      example: "15"
+      explode: true
+      in: query
+      name: limit
+      required: false
+      schema:
+        format: int32
+        type: integer
+      style: form
+    stages:
+      description: 'The immutability stages you want to restrict results to. You can
+        choose any from `replicated`, `factom`, and `anchored`. If you would like
+        to search among multiple stages, send them in a comma separated string. For
+        example: `''multi_az,factom''`.'
+      explode: true
+      in: query
+      name: stages
+      required: false
+      schema:
+        type: string
+      style: form
+  requestBodies:
+    postChainSearchBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ExternalIds'
+      required: true
+  schemas:
+    AllInfo:
+      example:
+        api_version: v1.0.1234
+        links:
+          chains: https://api.factom.com/apollo/v1/chains
+      properties:
+        version:
+          description: Connect version
+          type: string
+        links:
+          $ref: '#/components/schemas/AllInfo_links'
+      required:
+      - links
+      - version
+      type: object
+    ExternalIds:
+      description: The external IDs of the chains or entries you want to retrieve. You must enter these External IDs in Base64 format.
+      example:
+        external_ids:
+        - bXk=
+        - Y2hhaW4=
+      properties:
+        external_ids:
+          description: A list of external IDs.
+          example:
+          - bXk=
+          - Y2hhaW4=
+          items:
+            example: Y2hhaW4=
+            type: string
+          type: array
+      required:
+      - external_ids
+      type: object
+    ChainURL:
+      description: You can send an authenticated GET request to this URL to retrieve information about the specified chain.
+      type: string
+    ChainLink:
+      description: An object that contains the Chain Hash (ID) as well as a URL for the chain.
+      example:
+        chain_id: "285904"
+        links:
+          chain: https://api.factom.com/apollo/v1/chains/285904
+      properties:
+        chain_id:
+          description: The ID for this chain on the Factom blockchain.
+          type: string
+        href:
+          description: An API link to retrieve all information about this chain.
+          type: string
+      required:
+      - chain_id
+      - href
+      type: object
+    ChainCreate:
+      description: Used to create a new chain on Connect.
+      example:
+        external_ids:
+        - bXk=
+        - Y2hhaW4=
+        content: VGhpcyBpcyB0aGUgY29udGVudCBvZiB0aGUgZmlyc3QgY2hhaW4gZW50cnk=
+        callback_url: http://httpbin.org/post?my_id="12345"
+        callback_stages:
+        - factom
+        - bitcoin
+      properties:
+        external_ids:
+          description: Tags that can be used to identify your chain. You can search for records that contain a particular external_id using Connect. You must send External IDs in Base64 format.
+          items:
+            type: string
+          type: array
+        content:
+          description: This is the data that will make up the first entry in your new chain. It is customary to use this space to describe the entries that are to follow in the chain. You must send the content field in Base64 format.
+          type: string
+        callback_url:
+          description: The URL where you would like to receive the callback from Connect. If this is not specified, callbacks will not activate.
+          type: string
+        callback_stages:
+          description: 'The stages that you would like to trigger a callback from
+            Connect. This list can include any or all of the three stages: `replicated`,
+            `factom`, and `anchored`. If callbacks are activated and this field is
+            not sent, it will default to `factom` and `anchored`'
+          items:
+            type: string
+          type: array
+      required:
+      - content
+      - external_ids
+      type: object
+    ChainList:
+      description: Represents a list of Factom entries that have been or will be saved to the blockchain.
+      example:
+        chain_id: "285904"
+        external_ids:
+        - bXk=
+        - Y2hhaW4=
+        links:
+          entries: https://api.factom.com/apollo/v1/chains/285904/entries
+          first: https://api.factom.com/apollo/v1/chains/285904/entries/first
+          last: https://api.factom.com/apollo/v1/chains/285904/entries/last
+      properties:
+        data:
+          description: An array that contains the chains on this page.
+          items:
+            $ref: '#/components/schemas/ChainList_data'
+          type: array
+        offset:
+          description: The page offset. (Current page -1)
+          type: string
+        limit:
+          description: The maximum number of chains per page.
+          type: string
+        count:
+          description: The total number of chains seen.
+          type: string
+      required:
+      - count
+      - data
+      - limit
+      - offset
+      type: object
+    Chain:
+      description: Represents a list of Factom entries that have been or will be saved to the blockchain.
+      example:
+        chain_id: "285904"
+        external_ids:
+        - bXk=
+        - Y2hhaW4=
+        links:
+          entries: https://api.factom.com/apollo/v1/chains/285904/entries
+          first: https://api.factom.com/apollo/v1/chains/285904/entries/first
+          last: https://api.factom.com/apollo/v1/chains/285904/entries/last
+      properties:
+        data:
+          $ref: '#/components/schemas/Chain_data'
+      required:
+      - data
+      type: object
+    ChainShort:
+      description: Represents a list of Factom chains that have been or will be saved to the blockchain.
+      example:
+        chain_id: "285904"
+        external_ids:
+        - bXk=
+        - Y2hhaW4=
+        links:
+          entries: https://api.factom.com/apollo/v1/chains/285904/entries
+          first: https://api.factom.com/apollo/v1/chains/285904/entries/first
+          last: https://api.factom.com/apollo/v1/chains/285904/entries/last
+      properties:
+        chain_id:
+          description: This is the unique identifier created for each chain.
+          type: string
+        entry_hash:
+          description: The SHA256 Hash of the chain's first entry.
+          type: string
+        stage:
+          description: The immutability stage that this chain has reached.
+          example: Public Witness
+          type: string
+      required:
+      - chain_id
+      - entry_hash
+      - stage
+      type: object
+    EntryURL:
+      description: You can send an authenticated GET request to this url to retrieve information about the specified entry.
+      title: Entry URL
+      type: string
+    EntryLink:
+      description: An object that contains the Entry Hash (ID) and a URL for the entry.
+      example:
+        entry_hash: ea
+        links:
+          entry: https://api.factom.com/apollo/v1/chains/285904/entries/ea
+      properties:
+        entry_hash:
+          description: The SHA256 Hash of this entry.
+          type: string
+        chain:
+          $ref: '#/components/schemas/EntryLink_chain'
+        created_at:
+          description: 'The time at which this entry was created. Sent in [ISO 8601
+            Format](https://en.wikipedia.org/wiki/ISO_8601). For example: `YYYY-MM-DDThh:mm:ssZ`'
+          type: string
+        href:
+          description: An API link to retrieve all information about this entry.
+          type: string
+      required:
+      - chain
+      - created_at
+      - entry_hash
+      - href
+      type: object
+    EntrySearchResponse:
+      example:
+        data:
+        - href: href
+          external_ids:
+          - external_ids
+          - external_ids
+          entry_hash: entry_hash
+        - href: href
+          external_ids:
+          - external_ids
+          - external_ids
+          entry_hash: entry_hash
+        offset: offset
+        limit: limit
+        count: count
+      properties:
+        data:
+          description: An array of entries that match your search criterion.
+          items:
+            $ref: '#/components/schemas/EntrySearchResponse_data'
+          type: array
+        offset:
+          description: The page offset. (Current page -1)
+          type: string
+        limit:
+          description: The maximum number of entries per page.
+          type: string
+        count:
+          description: The total number of entries seen.
+          type: string
+      required:
+      - count
+      - data
+      - limit
+      - offset
+      type: object
+    EntryList:
+      description: A paginated list of entries.
+      example:
+        data:
+        - chain: '{"chain_id":"285904","links":{"chain":"https://api.factom.com/apollo/v1/chains/285904"}}'
+          created_at: created_at
+          href: href
+          entry_hash: entry_hash
+        - chain: '{"chain_id":"285904","links":{"chain":"https://api.factom.com/apollo/v1/chains/285904"}}'
+          created_at: created_at
+          href: href
+          entry_hash: entry_hash
+        offset: offset
+        limit: limit
+        count: count
+      properties:
+        data:
+          description: An array that contains the entries on this page.
+          items:
+            $ref: '#/components/schemas/EntryList_data'
+          type: array
+        offset:
+          description: The page offset. (Current page -1)
+          type: string
+        limit:
+          description: The maximum number of entries per page.
+          type: string
+        count:
+          description: The total number of entries seen.
+          type: string
+      required:
+      - count
+      - data
+      - limit
+      - offset
+      type: object
+    EntryCreate:
+      description: This information will be used to create a new entry.
+      example:
+        external_ids:
+        - bXk=
+        - bmV3
+        - Y2hhaW4=
+        - ZW50cnk=
+        content: V2FpdCwgYXJlIHlvdSByZWFsbHkgdGFraW5nIHRoZSB0aW1lIHRvIGNvbnZlcnQgdGhlc2UgYW5kIHJlYWQgdGhlbT8gV293Lg==
+        callback_url: http://httpbin.org/post?my_id="12345"
+        callback_stages:
+        - factom
+        - bitcoin
+      properties:
+        external_ids:
+          description: Tags that can be used to identify your entry. You can search for records that contain a particular `external_id` using Connect. External IDs should be sent in Base64.
+          items:
+            type: string
+          type: array
+        content:
+          description: This is the data that will be stored directly on the blockchain. Please be sure that no private information is entered here. Content should be sent in Base64 format.
+          type: string
+        callback_url:
+          description: The address you'd like the callback to be sent to. If this is not specified, callbacks will not activate.
+          type: string
+        callback_stages:
+          description: 'The immutability stages you''d like to be notified about.
+            This list can include any or all of the three stages: `replicated`, `factom`,
+            and `anchored`. If callbacks are activated and this field is not sent,
+            it will default to `factom` and `anchored`'
+          items:
+            type: string
+          type: array
+      required:
+      - content
+      - external_ids
+      type: object
+    Entry:
+      description: A single record that has been or will be saved to the blockchain.
+      example:
+        entry_hash: ea
+        chain_id: "285904"
+        external_ids:
+        - NkQ3OQ==
+        - NjM2ODYxNjk2RQ==
+        content: aHR0cHM6Ly93d3cueW91dHViZS5jb20vd2F0Y2g/dj1xSjdZQWh0elJzWQ==
+        links:
+          chain: https://api.factom.com/apollo/v1/chains/285904
+      properties:
+        data:
+          $ref: '#/components/schemas/Entry_data'
+      required:
+      - data
+      type: object
+    EntryShort:
+      example:
+        entry_hash: 7BDC25D1694EF984782A16F6F1710C1C6BC83BA7A131B515BAF532BEA021D011
+        stage: replicated
+      properties:
+        entry_hash:
+          description: The SHA256 Hash of the entry you just created. You can use this hash to referece this entry in the future.
+          type: string
+        stage:
+          description: The current immutability stage of the new entry. Only returned if callbacks are enabled.
+          type: string
+      type: object
+    AllInfo_links:
+      description: Links to internal paths of the application
+      properties:
+        chains:
+          description: Link to chain api
+          type: string
+      required:
+      - chains
+    ChainList_data:
+      properties:
+        chain_id:
+          description: The ID for this chain on the Factom blockchain.
+          type: string
+        external_ids:
+          description: The external IDs attached to this chain on the Factom blockchain.
+          items:
+            type: string
+          type: array
+        href:
+          description: An API link to retrieve all information about this chain.
+          type: string
+      required:
+      - chain_id
+      - external_ids
+      - href
+    Chain_data_entries:
+      properties:
+        href:
+          description: An API link to all of the entries in this chain.
+          type: string
+      required:
+      - href
+    Chain_data:
+      properties:
+        chain_id:
+          description: This is the unique identifier created for each chain.
+          type: string
+        external_ids:
+          description: Tags that have been used to identify this entry.
+          items:
+            type: string
+          type: array
+        stage:
+          description: The immutability stage that this chain has reached.
+          example: Public Witness
+          type: string
+        entries:
+          $ref: '#/components/schemas/Chain_data_entries'
+      required:
+      - chain_id
+      - entries
+      - external_ids
+      - stage
+    EntryLink_chain:
+      description: An object that contains the Chain Hash (ID) as well as a URL for the chain.
+      example: '{"chain_id":"285904","links":{"chain":"https://api.factom.com/apollo/v1/chains/285904"}}'
+      properties:
+        chain_id:
+          description: The ID for this chain on the Factom blockchain.
+          type: string
+        href:
+          description: An API link to retrieve all information about this chain.
+          type: string
+    EntrySearchResponse_data:
+      example:
+        href: href
+        external_ids:
+        - external_ids
+        - external_ids
+        entry_hash: entry_hash
+      properties:
+        entry_hash:
+          description: The SHA256 Hash of this entry.
+          type: string
+        external_ids:
+          description: Tags that can be used to identify this entry.
+          items:
+            type: string
+          type: array
+        href:
+          description: An API link to retrieve all information about this entry.
+          type: string
+      required:
+      - entry_hash
+      - external_ids
+      - href
+    EntryList_data:
+      example:
+        chain: '{"chain_id":"285904","links":{"chain":"https://api.factom.com/apollo/v1/chains/285904"}}'
+        created_at: created_at
+        href: href
+        entry_hash: entry_hash
+      properties:
+        entry_hash:
+          description: The SHA256 Hash of this entry.
+          type: string
+        chain:
+          $ref: '#/components/schemas/EntryLink_chain'
+        created_at:
+          description: 'The time at which this entry was created. Sent in [ISO 8601
+            Format](https://en.wikipedia.org/wiki/ISO_8601). For example: `YYYY-MM-DDThh:mm:ssZ`'
+          type: string
+        href:
+          description: An API link to retrieve all information about this entry.
+          type: string
+      required:
+      - chain
+      - created_at
+      - entry_hash
+      - href
+    Entry_data_eblock:
+      properties:
+        keymr:
+          description: The Key Merkle Root for this entry block.
+          type: string
+        href:
+          description: An API link to retrieve all information about this entry block.
+          type: string
+    Entry_data:
+      properties:
+        entry_hash:
+          description: The SHA256 Hash of this entry.
+          type: string
+        chain:
+          $ref: '#/components/schemas/EntryLink_chain'
+        created_at:
+          description: 'The time when this entry was created. Sent in [ISO 8601 Format](https://en.wikipedia.org/wiki/ISO_8601).
+            For example: `YYYY-MM-DDThh:mm:ssZ`'
+          type: string
+        external_ids:
+          description: Tags that can be used to identify your entry. You can search for records that contain a particular external_id using Connect. External IDs are returned in Base64.
+          items:
+            type: string
+          type: array
+        content:
+          description: This is the data that is stored by the entry. Content will be sent in Base64 format.
+          type: string
+        stage:
+          description: The level of immutability that this entry has reached.
+          type: string
+        eblock:
+          $ref: '#/components/schemas/Entry_data_eblock'
+  securitySchemes:
+    AppId:
+      description: You must include a user key in the header of all requests to Factom Connect. If you attempt to communicate with the API without this key, you will trigger an error response.
+      in: header
+      name: app_id
+      type: apiKey
+    AppKey:
+      description: You must include a user key in the header of all requests to Factom Connect. If you attempt to communicate with the API without this key, you will trigger an error response.
+      in: header
+      name: app_key
+      type: apiKey
+x-api-id: connect
+x-samples-languages:
+- curl
+- javascript
+- python
+- java
+- php
+- go
+- csharp
+x-headers:
+- key: Content-Type
+  value: application/json
+- key: Accept
+  value: application/json
+x-send-defaults: false
+x-explorer-enabled: true
+x-proxy-enabled: true
+x-samples-enabled: true

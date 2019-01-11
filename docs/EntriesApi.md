@@ -1,0 +1,207 @@
+# \EntriesApi
+
+All URIs are relative to *https://connect-shared-sandbox-2445582615332.production.gw.apicast.io/v1*
+
+Method | HTTP request | Description
+------------- | ------------- | -------------
+[**GetEntriesByChainID**](EntriesApi.md#GetEntriesByChainID) | **Get** /chains/{chain_id}/entries | Get Chain&#39;s Entries
+[**GetEntryByHash**](EntriesApi.md#GetEntryByHash) | **Get** /chains/{chain_id}/entries/{entry_hash} | Get Entry Info
+[**GetFirstEntry**](EntriesApi.md#GetFirstEntry) | **Get** /chains/{chain_id}/entries/first | Get Chain&#39;s First Entry
+[**GetLastEntry**](EntriesApi.md#GetLastEntry) | **Get** /chains/{chain_id}/entries/last | Get Chain&#39;s Last Entry
+[**PostEntriesSearch**](EntriesApi.md#PostEntriesSearch) | **Post** /chains/{chain_id}/entries/search | Search Chain&#39;s Entries
+[**PostEntryToChainID**](EntriesApi.md#PostEntryToChainID) | **Post** /chains/{chain_id}/entries | Create an Entry
+
+
+# **GetEntriesByChainID**
+> EntryList GetEntriesByChainID(ctx, chainId, optional)
+Get Chain's Entries
+
+List all entries contained on the specified chain.
+
+### Required Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+  **chainId** | **string**| Chain identifier | 
+ **optional** | ***GetEntriesByChainIDOpts** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a pointer to a GetEntriesByChainIDOpts struct
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+ **limit** | **optional.Int32**| The number of items you would like back in each page. | 
+ **offset** | **optional.Int32**| The page you would like to request. The first page offset is Zero. | 
+ **stages** | **optional.String**| The immutability stages you want to restrict results to. You can choose any from &#x60;replicated&#x60;, &#x60;factom&#x60;, and &#x60;anchored&#x60;. If you would like to search among multiple stages, send them in a comma separated string. For example: &#x60;&#39;multi_az,factom&#39;&#x60;. | 
+
+### Return type
+
+[**EntryList**](EntryList.md)
+
+### Authorization
+
+[AppId](../README.md#AppId), [AppKey](../README.md#AppKey)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **GetEntryByHash**
+> Entry GetEntryByHash(ctx, chainId, entryHash)
+Get Entry Info
+
+Returns information about a specific entry on Connect. The requested entry must be specified using the Chain ID and Entry Hash.
+
+### Required Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+  **chainId** | **string**| Chain identifier | 
+  **entryHash** | **string**| The SHA256 hash of the entry. | 
+
+### Return type
+
+[**Entry**](Entry.md)
+
+### Authorization
+
+[AppId](../README.md#AppId), [AppKey](../README.md#AppKey)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **GetFirstEntry**
+> Entry GetFirstEntry(ctx, chainId)
+Get Chain's First Entry
+
+Retrieve the first entry that has been saved to this chain.
+
+### Required Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+  **chainId** | **string**| Chain identifier | 
+
+### Return type
+
+[**Entry**](Entry.md)
+
+### Authorization
+
+[AppId](../README.md#AppId), [AppKey](../README.md#AppKey)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **GetLastEntry**
+> Entry GetLastEntry(ctx, chainId)
+Get Chain's Last Entry
+
+Retrieve the last entry that has been saved to this chain.
+
+### Required Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+  **chainId** | **string**| Chain identifier | 
+
+### Return type
+
+[**Entry**](Entry.md)
+
+### Authorization
+
+[AppId](../README.md#AppId), [AppKey](../README.md#AppKey)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **PostEntriesSearch**
+> EntrySearchResponse PostEntriesSearch(ctx, chainId, externalIds, optional)
+Search Chain's Entries
+
+Find all of the entries within the specified chain that have the requested `external_ids`.
+
+### Required Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+  **chainId** | **string**| Chain identifier | 
+  **externalIds** | [**ExternalIds**](ExternalIds.md)|  | 
+ **optional** | ***PostEntriesSearchOpts** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a pointer to a PostEntriesSearchOpts struct
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+ **limit** | **optional.Int32**| The number of items you would like back in each page. | 
+ **offset** | **optional.Int32**| The page you would like to request. The first page offset is Zero. | 
+
+### Return type
+
+[**EntrySearchResponse**](EntrySearchResponse.md)
+
+### Authorization
+
+[AppId](../README.md#AppId), [AppKey](../README.md#AppKey)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **PostEntryToChainID**
+> EntryShort PostEntryToChainID(ctx, chainId, entryCreate)
+Create an Entry
+
+Create a new entry for the selected chain. Content and external id must be uploaded in Base64 format.
+
+### Required Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+  **chainId** | **string**| Chain identifier | 
+  **entryCreate** | [**EntryCreate**](EntryCreate.md)|  | 
+
+### Return type
+
+[**EntryShort**](EntryShort.md)
+
+### Authorization
+
+[AppId](../README.md#AppId), [AppKey](../README.md#AppKey)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+

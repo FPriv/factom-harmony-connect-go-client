@@ -1,0 +1,33 @@
+# \InfoApi
+
+All URIs are relative to *https://connect-shared-sandbox-2445582615332.production.gw.apicast.io/v1*
+
+Method | HTTP request | Description
+------------- | ------------- | -------------
+[**GetAllInfo**](InfoApi.md#GetAllInfo) | **Get** / | API Info
+
+
+# **GetAllInfo**
+> AllInfo GetAllInfo(ctx, )
+API Info
+
+Request general information about the Connect API such as the version and available endpoints.
+
+### Required Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+[**AllInfo**](AllInfo.md)
+
+### Authorization
+
+[AppId](../README.md#AppId), [AppKey](../README.md#AppKey)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
