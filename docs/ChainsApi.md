@@ -104,7 +104,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **PostChainSearch**
-> ChainList PostChainSearch(ctx, externalIds, optional)
+> ChainList PostChainSearch(ctx, searchBody, optional)
 Search Chains
 
 Finds all of the chains with `external_ids` that match what you've entered. External IDs must be sent in Base64 format.
@@ -114,7 +114,7 @@ Finds all of the chains with `external_ids` that match what you've entered. Exte
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-  **externalIds** | [**ExternalIds**](ExternalIds.md)|  | 
+  **searchBody** | [**SearchBody**](SearchBody.md)|  | 
  **optional** | ***PostChainSearchOpts** | optional parameters | nil if no parameters
 
 ### Optional Parameters
