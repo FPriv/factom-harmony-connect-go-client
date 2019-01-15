@@ -510,7 +510,7 @@ EntriesApiService Search Chain's Entries
 Find all of the entries within the specified chain that have the requested &#x60;external_ids&#x60;.
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param chainId Chain identifier
- * @param externalIds
+ * @param searchBody
  * @param optional nil or *PostEntriesSearchOpts - Optional Parameters:
  * @param "Limit" (optional.Int32) -  The number of items you would like back in each page.
  * @param "Offset" (optional.Int32) -  The page you would like to request. The first page offset is Zero.
@@ -522,7 +522,7 @@ type PostEntriesSearchOpts struct {
 	Offset optional.Int32
 }
 
-func (a *EntriesApiService) PostEntriesSearch(ctx context.Context, chainId string, externalIds ExternalIds, localVarOptionals *PostEntriesSearchOpts) (EntrySearchResponse, *http.Response, error) {
+func (a *EntriesApiService) PostEntriesSearch(ctx context.Context, chainId string, searchBody SearchBody, localVarOptionals *PostEntriesSearchOpts) (EntrySearchResponse, *http.Response, error) {
 	var (
 		localVarHttpMethod   = strings.ToUpper("Post")
 		localVarPostBody     interface{}
@@ -564,7 +564,7 @@ func (a *EntriesApiService) PostEntriesSearch(ctx context.Context, chainId strin
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 	// body params
-	localVarPostBody = &externalIds
+	localVarPostBody = &searchBody
 	if ctx != nil {
 		// API Key Authentication
 		if auth, ok := ctx.Value(ContextAPIKey).(APIKey); ok {

@@ -137,7 +137,7 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **PostEntriesSearch**
-> EntrySearchResponse PostEntriesSearch(ctx, chainId, externalIds, optional)
+> EntrySearchResponse PostEntriesSearch(ctx, chainId, searchBody, optional)
 Search Chain's Entries
 
 Find all of the entries within the specified chain that have the requested `external_ids`.
@@ -148,7 +148,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
   **chainId** | **string**| Chain identifier | 
-  **externalIds** | [**ExternalIds**](ExternalIds.md)|  | 
+  **searchBody** | [**SearchBody**](SearchBody.md)|  | 
  **optional** | ***PostEntriesSearchOpts** | optional parameters | nil if no parameters
 
 ### Optional Parameters

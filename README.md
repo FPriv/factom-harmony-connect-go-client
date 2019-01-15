@@ -69,7 +69,7 @@ Class | Method | HTTP request | Description
  - [EntrySearchResponse](docs/EntrySearchResponse.md)
  - [EntrySearchResponseData](docs/EntrySearchResponseData.md)
  - [EntryShort](docs/EntryShort.md)
- - [ExternalIds](docs/ExternalIds.md)
+ - [SearchBody](docs/SearchBody.md)
 
 
 ## Documentation For Authorization

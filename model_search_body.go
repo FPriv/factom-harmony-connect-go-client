@@ -11,7 +11,7 @@
 package connectclient
 
 // The external IDs of the chains or entries you want to retrieve. You must enter these External IDs in Base64 format.
-type ExternalIds struct {
+type SearchBody struct {
 	// A list of external IDs.
 	ExternalIds []string `json:"external_ids"`
 }

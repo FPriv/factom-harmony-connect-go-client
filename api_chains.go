@@ -392,7 +392,7 @@ func (a *ChainsApiService) PostChain(ctx context.Context, chainCreate ChainCreat
 ChainsApiService Search Chains
 Finds all of the chains with &#x60;external_ids&#x60; that match what you&#39;ve entered. External IDs must be sent in Base64 format.
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param externalIds
+ * @param searchBody
  * @param optional nil or *PostChainSearchOpts - Optional Parameters:
  * @param "Limit" (optional.Int32) -  The number of items you would like back in each page.
  * @param "Offset" (optional.Int32) -  The page you would like to request. The first page offset is Zero.
@@ -404,7 +404,7 @@ type PostChainSearchOpts struct {
 	Offset optional.Int32
 }
 
-func (a *ChainsApiService) PostChainSearch(ctx context.Context, externalIds ExternalIds, localVarOptionals *PostChainSearchOpts) (ChainList, *http.Response, error) {
+func (a *ChainsApiService) PostChainSearch(ctx context.Context, searchBody SearchBody, localVarOptionals *PostChainSearchOpts) (ChainList, *http.Response, error) {
 	var (
 		localVarHttpMethod   = strings.ToUpper("Post")
 		localVarPostBody     interface{}
@@ -445,7 +445,7 @@ func (a *ChainsApiService) PostChainSearch(ctx context.Context, externalIds Exte
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
 	}
 	// body params
-	localVarPostBody = &externalIds
+	localVarPostBody = &searchBody
 	if ctx != nil {
 		// API Key Authentication
 		if auth, ok := ctx.Value(ContextAPIKey).(APIKey); ok {
