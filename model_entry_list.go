@@ -14,10 +14,10 @@ package connectclient
 type EntryList struct {
 	// An array that contains the entries on this page.
 	Data []EntryListData `json:"data"`
-	// The page offset. (Current page -1)
-	Offset string `json:"offset"`
-	// The maximum number of entries per page.
-	Limit string `json:"limit"`
+	// The first entry returned from the total set (Starting from 0).
+	Offset int32 `json:"offset"`
+	// The number of entries returned.
+	Limit int32 `json:"limit"`
 	// The total number of entries seen.
-	Count string `json:"count"`
+	Count int32 `json:"count"`
 }

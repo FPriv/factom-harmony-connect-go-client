@@ -460,7 +460,7 @@ components:
         type: string
       style: simple
     offset:
-      description: The page you would like to request. The first page offset is Zero.
+      description: The offset parameter allows you to select which item you would like to start from when you get back a list from Connect. For example, if you've already seen the first 15 items and you'd like the next set, you would send an offset of 14. `offset=0` retrieves the first item of the set and is the default position.
       example: "2"
       explode: true
       in: query
@@ -608,14 +608,17 @@ components:
             $ref: '#/components/schemas/ChainList_data'
           type: array
         offset:
-          description: The page offset. (Current page -1)
-          type: string
+          description: The first chain returned from the total set (Starting from 0).
+          format: int32
+          type: integer
         limit:
-          description: The maximum number of chains per page.
-          type: string
+          description: The number of chains returned.
+          format: int32
+          type: integer
         count:
           description: The total number of chains seen.
-          type: string
+          format: int32
+          type: integer
       required:
       - count
       - data
@@ -708,9 +711,9 @@ components:
           - external_ids
           - external_ids
           entry_hash: entry_hash
-        offset: offset
-        limit: limit
-        count: count
+        offset: 0
+        limit: 6
+        count: 1
       properties:
         data:
           description: An array of entries that match your search criterion.
@@ -718,14 +721,17 @@ components:
             $ref: '#/components/schemas/EntrySearchResponse_data'
           type: array
         offset:
-          description: The page offset. (Current page -1)
-          type: string
+          description: The first item returned from the total set (Starting from 0).
+          format: int32
+          type: integer
         limit:
           description: The maximum number of entries per page.
-          type: string
+          format: int32
+          type: integer
         count:
           description: The total number of entries seen.
-          type: string
+          format: int32
+          type: integer
       required:
       - count
       - data
@@ -744,9 +750,9 @@ components:
           created_at: created_at
           href: href
           entry_hash: entry_hash
-        offset: offset
-        limit: limit
-        count: count
+        offset: 0
+        limit: 6
+        count: 1
       properties:
         data:
           description: An array that contains the entries on this page.
@@ -754,14 +760,17 @@ components:
             $ref: '#/components/schemas/EntryList_data'
           type: array
         offset:
-          description: The page offset. (Current page -1)
-          type: string
+          description: The first entry returned from the total set (Starting from 0).
+          format: int32
+          type: integer
         limit:
-          description: The maximum number of entries per page.
-          type: string
+          description: The number of entries returned.
+          format: int32
+          type: integer
         count:
           description: The total number of entries seen.
-          type: string
+          format: int32
+          type: integer
       required:
       - count
       - data
