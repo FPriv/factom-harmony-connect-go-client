@@ -13,10 +13,10 @@ package connectclient
 type EntrySearchResponse struct {
 	// An array of entries that match your search criterion.
 	Data []EntrySearchResponseData `json:"data"`
-	// The page offset. (Current page -1)
-	Offset string `json:"offset"`
+	// The first item returned from the total set (Starting from 0).
+	Offset int32 `json:"offset"`
 	// The maximum number of entries per page.
-	Limit string `json:"limit"`
+	Limit int32 `json:"limit"`
 	// The total number of entries seen.
-	Count string `json:"count"`
+	Count int32 `json:"count"`
 }

@@ -4,9 +4,9 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **Data** | [**[]EntrySearchResponseData**](EntrySearchResponse_data.md) | An array of entries that match your search criterion. | 
-**Offset** | **string** | The page offset. (Current page -1) | 
-**Limit** | **string** | The maximum number of entries per page. | 
-**Count** | **string** | The total number of entries seen. | 
+**Offset** | **int32** | The first item returned from the total set (Starting from 0). | 
+**Limit** | **int32** | The maximum number of entries per page. | 
+**Count** | **int32** | The total number of entries seen. | 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

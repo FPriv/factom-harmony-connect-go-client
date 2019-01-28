@@ -14,10 +14,10 @@ package connectclient
 type ChainList struct {
 	// An array that contains the chains on this page.
 	Data []ChainListData `json:"data"`
-	// The page offset. (Current page -1)
-	Offset string `json:"offset"`
-	// The maximum number of chains per page.
-	Limit string `json:"limit"`
+	// The first chain returned from the total set (Starting from 0).
+	Offset int32 `json:"offset"`
+	// The number of chains returned.
+	Limit int32 `json:"limit"`
 	// The total number of chains seen.
-	Count string `json:"count"`
+	Count int32 `json:"count"`
 }
