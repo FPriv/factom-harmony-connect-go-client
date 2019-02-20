@@ -20,7 +20,7 @@ paths:
   /:
     get:
       description: Request general information about the Connect API such as the version and available endpoints.
-      operationId: getAllInfo
+      operationId: getApiInfo
       responses:
         200:
           content:
@@ -76,7 +76,7 @@ paths:
           format: int32
           type: integer
         style: form
-      - description: The page you would like to request. The first page offset is Zero.
+      - description: The offset parameter allows you to select which item you would like to start from when you get back a list from Connect. For example, if you've already seen the first 15 items and you'd like the next set, you would send an offset of 15. `offset=0` starts from the first item of the set and is the default position.
         example: "2"
         explode: true
         in: query
@@ -89,7 +89,7 @@ paths:
       - description: 'The immutability stages you want to restrict results to. You
           can choose any from `replicated`, `factom`, and `anchored`. If you would
           like to search among multiple stages, send them in a comma separated string.
-          For example: `''multi_az,factom''`.'
+          For example: `''replicated,factom''`.'
         explode: true
         in: query
         name: stages
@@ -147,7 +147,7 @@ paths:
           format: int32
           type: integer
         style: form
-      - description: The page you would like to request. The first page offset is Zero.
+      - description: The offset parameter allows you to select which item you would like to start from when you get back a list from Connect. For example, if you've already seen the first 15 items and you'd like the next set, you would send an offset of 15. `offset=0` starts from the first item of the set and is the default position.
         example: "2"
         explode: true
         in: query
@@ -223,7 +223,7 @@ paths:
           format: int32
           type: integer
         style: form
-      - description: The page you would like to request. The first page offset is Zero.
+      - description: The offset parameter allows you to select which item you would like to start from when you get back a list from Connect. For example, if you've already seen the first 15 items and you'd like the next set, you would send an offset of 15. `offset=0` starts from the first item of the set and is the default position.
         example: "2"
         explode: true
         in: query
@@ -245,7 +245,7 @@ paths:
       - description: 'The immutability stages you want to restrict results to. You
           can choose any from `replicated`, `factom`, and `anchored`. If you would
           like to search among multiple stages, send them in a comma separated string.
-          For example: `''multi_az,factom''`.'
+          For example: `''replicated,factom''`.'
         explode: true
         in: query
         name: stages
@@ -382,7 +382,7 @@ paths:
           format: int32
           type: integer
         style: form
-      - description: The page you would like to request. The first page offset is Zero.
+      - description: The offset parameter allows you to select which item you would like to start from when you get back a list from Connect. For example, if you've already seen the first 15 items and you'd like the next set, you would send an offset of 15. `offset=0` starts from the first item of the set and is the default position.
         example: "2"
         explode: true
         in: query
@@ -460,7 +460,7 @@ components:
         type: string
       style: simple
     offset:
-      description: The offset parameter allows you to select which item you would like to start from when you get back a list from Connect. For example, if you've already seen the first 15 items and you'd like the next set, you would send an offset of 14. `offset=0` retrieves the first item of the set and is the default position.
+      description: The offset parameter allows you to select which item you would like to start from when you get back a list from Connect. For example, if you've already seen the first 15 items and you'd like the next set, you would send an offset of 15. `offset=0` starts from the first item of the set and is the default position.
       example: "2"
       explode: true
       in: query
@@ -485,7 +485,7 @@ components:
       description: 'The immutability stages you want to restrict results to. You can
         choose any from `replicated`, `factom`, and `anchored`. If you would like
         to search among multiple stages, send them in a comma separated string. For
-        example: `''multi_az,factom''`.'
+        example: `''replicated,factom''`.'
       explode: true
       in: query
       name: stages
@@ -503,7 +503,7 @@ components:
   schemas:
     AllInfo:
       example:
-        api_version: v1.0.1234
+        version: v1.0.1234
         links:
           chains: https://api.factom.com/apollo/v1/chains
       properties:
@@ -535,9 +535,6 @@ components:
       required:
       - external_ids
       type: object
-    ChainURL:
-      description: You can send an authenticated GET request to this URL to retrieve information about the specified chain.
-      type: string
     ChainLink:
       description: An object that contains the Chain Hash (ID) as well as a URL for the chain.
       example:
@@ -565,7 +562,7 @@ components:
         callback_url: http://httpbin.org/post?my_id="12345"
         callback_stages:
         - factom
-        - bitcoin
+        - anchored
       properties:
         external_ids:
           description: Tags that can be used to identify your chain. You can search for records that contain a particular external_id using Connect. You must send External IDs in Base64 format.
@@ -608,7 +605,7 @@ components:
             $ref: '#/components/schemas/ChainList_data'
           type: array
         offset:
-          description: The first chain returned from the total set (Starting from 0).
+          description: The index of the first chain returned from the total set (Starting from 0).
           format: int32
           type: integer
         limit:
@@ -669,44 +666,17 @@ components:
       - entry_hash
       - stage
       type: object
-    EntryURL:
-      description: You can send an authenticated GET request to this url to retrieve information about the specified entry.
-      title: Entry URL
-      type: string
-    EntryLink:
-      description: An object that contains the Entry Hash (ID) and a URL for the entry.
-      example:
-        entry_hash: ea
-        links:
-          entry: https://api.factom.com/apollo/v1/chains/285904/entries/ea
-      properties:
-        entry_hash:
-          description: The SHA256 Hash of this entry.
-          type: string
-        chain:
-          $ref: '#/components/schemas/EntryLink_chain'
-        created_at:
-          description: 'The time at which this entry was created. Sent in [ISO 8601
-            Format](https://en.wikipedia.org/wiki/ISO_8601). For example: `YYYY-MM-DDThh:mm:ssZ`'
-          type: string
-        href:
-          description: An API link to retrieve all information about this entry.
-          type: string
-      required:
-      - chain
-      - created_at
-      - entry_hash
-      - href
-      type: object
     EntrySearchResponse:
       example:
         data:
-        - href: href
+        - stage: stage
+          href: href
           external_ids:
           - external_ids
           - external_ids
           entry_hash: entry_hash
-        - href: href
+        - stage: stage
+          href: href
           external_ids:
           - external_ids
           - external_ids
@@ -721,7 +691,7 @@ components:
             $ref: '#/components/schemas/EntrySearchResponse_data'
           type: array
         offset:
-          description: The first item returned from the total set (Starting from 0).
+          description: The index of the first item returned from the total set (Starting from 0).
           format: int32
           type: integer
         limit:
@@ -760,7 +730,7 @@ components:
             $ref: '#/components/schemas/EntryList_data'
           type: array
         offset:
-          description: The first entry returned from the total set (Starting from 0).
+          description: The index of the first entry returned from the total set (Starting from 0).
           format: int32
           type: integer
         limit:
@@ -789,7 +759,7 @@ components:
         callback_url: http://httpbin.org/post?my_id="12345"
         callback_stages:
         - factom
-        - bitcoin
+        - anchored
       properties:
         external_ids:
           description: Tags that can be used to identify your entry. You can search for records that contain a particular `external_id` using Connect. External IDs should be sent in Base64.
@@ -840,7 +810,7 @@ components:
           description: The SHA256 Hash of the entry you just created. You can use this hash to referece this entry in the future.
           type: string
         stage:
-          description: The current immutability stage of the new entry. Only returned if callbacks are enabled.
+          description: The current immutability stage of the new entry.
           type: string
       type: object
     AllInfo_links:
@@ -864,10 +834,21 @@ components:
         href:
           description: An API link to retrieve all information about this chain.
           type: string
+        stage:
+          description: The level of immutability that this chain has reached.
+          type: string
+        created_at:
+          description: 'The time at which this chain was created. Sent in [ISO 8601
+            Format](https://en.wikipedia.org/wiki/ISO_8601). For example: `YYYY-MM-DDThh:mm:ss.ssssssZ`
+            This will be null if the chain is not at least at the `factom` immutability
+            stage.'
+          type: string
       required:
       - chain_id
+      - created_at
       - external_ids
       - href
+      - stage
     Chain_data_entries:
       properties:
         href:
@@ -875,10 +856,35 @@ components:
           type: string
       required:
       - href
+    Chain_data_eblock:
+      description: Represents the Entry Block that contains the first entry of this chain. This will be null if the chain is not at least at the `factom` immutability stage.
+      properties:
+        keymr:
+          description: The Key Merkle Root for this entry block.
+          type: string
+        href:
+          description: An API link to retrieve all information about this entry block.
+          type: string
+    Chain_data_dblock:
+      description: Represents the Directory Block that relates to this chain. This will be null if the chain is not at least at the `factom` immutability stage.
+      properties:
+        keymr:
+          description: The Key Merkle Root for this directory block.
+          type: string
+        height:
+          description: The Factom blockchain height of this directory block.
+          format: int32
+          type: integer
+        href:
+          description: An API link to retrieve all information about this directory block.
+          type: string
     Chain_data:
       properties:
         chain_id:
           description: This is the unique identifier created for each chain.
+          type: string
+        content:
+          description: This is the data that was stored in the first entry of this chain.
           type: string
         external_ids:
           description: Tags that have been used to identify this entry.
@@ -887,27 +893,32 @@ components:
           type: array
         stage:
           description: The immutability stage that this chain has reached.
-          example: Public Witness
+          example: replicated
           type: string
         entries:
           $ref: '#/components/schemas/Chain_data_entries'
+        eblock:
+          $ref: '#/components/schemas/Chain_data_eblock'
+        dblock:
+          $ref: '#/components/schemas/Chain_data_dblock'
+        created_at:
+          description: 'The time at which this chain was created. Sent in [ISO 8601
+            Format](https://en.wikipedia.org/wiki/ISO_8601). For example: `YYYY-MM-DDThh:mm:ss.ssssssZ`
+            This will be null if the chain is not at least at the `factom` immutability
+            stage.'
+          type: string
       required:
       - chain_id
+      - content
+      - created_at
+      - dblock
+      - eblock
       - entries
       - external_ids
       - stage
-    EntryLink_chain:
-      description: An object that contains the Chain Hash (ID) as well as a URL for the chain.
-      example: '{"chain_id":"285904","links":{"chain":"https://api.factom.com/apollo/v1/chains/285904"}}'
-      properties:
-        chain_id:
-          description: The ID for this chain on the Factom blockchain.
-          type: string
-        href:
-          description: An API link to retrieve all information about this chain.
-          type: string
     EntrySearchResponse_data:
       example:
+        stage: stage
         href: href
         external_ids:
         - external_ids
@@ -922,6 +933,9 @@ components:
           items:
             type: string
           type: array
+        stage:
+          description: The level of immutability that this entry has reached.
+          type: string
         href:
           description: An API link to retrieve all information about this entry.
           type: string
@@ -929,6 +943,17 @@ components:
       - entry_hash
       - external_ids
       - href
+      - stage
+    EntryList_chain:
+      description: An object that contains the Chain Hash (ID) as well as a URL for the chain.
+      example: '{"chain_id":"285904","links":{"chain":"https://api.factom.com/apollo/v1/chains/285904"}}'
+      properties:
+        chain_id:
+          description: The ID for this chain on the Factom blockchain.
+          type: string
+        href:
+          description: An API link to retrieve all information about this chain.
+          type: string
     EntryList_data:
       example:
         chain: '{"chain_id":"285904","links":{"chain":"https://api.factom.com/apollo/v1/chains/285904"}}'
@@ -940,10 +965,10 @@ components:
           description: The SHA256 Hash of this entry.
           type: string
         chain:
-          $ref: '#/components/schemas/EntryLink_chain'
+          $ref: '#/components/schemas/EntryList_chain'
         created_at:
           description: 'The time at which this entry was created. Sent in [ISO 8601
-            Format](https://en.wikipedia.org/wiki/ISO_8601). For example: `YYYY-MM-DDThh:mm:ssZ`'
+            Format](https://en.wikipedia.org/wiki/ISO_8601). For example: `YYYY-MM-DDThh:mm:ss.ssssssZ`'
           type: string
         href:
           description: An API link to retrieve all information about this entry.
@@ -953,7 +978,21 @@ components:
       - created_at
       - entry_hash
       - href
+    Entry_data_dblock:
+      description: Represents the Directory Block that relates to this entry. This will be null if the chain is not at least at the `factom` immutability stage.
+      properties:
+        keymr:
+          description: The Key Merkle Root for this directory block.
+          type: string
+        height:
+          description: The Factom blockchain height of this directory block.
+          format: int32
+          type: integer
+        href:
+          description: An API link to retrieve all information about this directory block.
+          type: string
     Entry_data_eblock:
+      description: Represents the Entry Block that contains the entry. This will be null if the entry is not at least at the `factom` immutability stage.
       properties:
         keymr:
           description: The Key Merkle Root for this entry block.
@@ -967,10 +1006,10 @@ components:
           description: The SHA256 Hash of this entry.
           type: string
         chain:
-          $ref: '#/components/schemas/EntryLink_chain'
+          $ref: '#/components/schemas/EntryList_chain'
         created_at:
           description: 'The time when this entry was created. Sent in [ISO 8601 Format](https://en.wikipedia.org/wiki/ISO_8601).
-            For example: `YYYY-MM-DDThh:mm:ssZ`'
+            For example: `YYYY-MM-DDThh:mm:ss.ssssssZ`'
           type: string
         external_ids:
           description: Tags that can be used to identify your entry. You can search for records that contain a particular external_id using Connect. External IDs are returned in Base64.
@@ -983,8 +1022,19 @@ components:
         stage:
           description: The level of immutability that this entry has reached.
           type: string
+        dblock:
+          $ref: '#/components/schemas/Entry_data_dblock'
         eblock:
           $ref: '#/components/schemas/Entry_data_eblock'
+      required:
+      - chain
+      - content
+      - created_at
+      - dblock
+      - eblock
+      - entry_hash
+      - external_ids
+      - stage
   securitySchemes:
     AppId:
       description: You must include a user key in the header of all requests to Factom Connect. If you attempt to communicate with the API without this key, you will trigger an error response.

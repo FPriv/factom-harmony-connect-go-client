@@ -10,8 +10,8 @@
 
 package connectclient
 
-// Represents the Entry Block that contains the entry. This will be null if the entry is not at least at the `factom` immutability stage.
-type EntryDataEblock struct {
+// Represents the Entry Block that contains the first entry of this chain. This will be null if the chain is not at least at the `factom` immutability stage.
+type ChainDataEblock struct {
 	// The Key Merkle Root for this entry block.
 	Keymr string `json:"keymr,omitempty"`
 	// An API link to retrieve all information about this entry block.

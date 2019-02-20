@@ -4,7 +4,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **Data** | [**[]ChainListData**](ChainList_data.md) | An array that contains the chains on this page. | 
-**Offset** | **int32** | The first chain returned from the total set (Starting from 0). | 
+**Offset** | **int32** | The index of the first chain returned from the total set (Starting from 0). | 
 **Limit** | **int32** | The number of chains returned. | 
 **Count** | **int32** | The total number of chains seen. | 
 

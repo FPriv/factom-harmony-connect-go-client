@@ -1,10 +1,10 @@
-# EntryShort
+# EntryListChain
 
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**EntryHash** | **string** | The SHA256 Hash of the entry you just created. You can use this hash to referece this entry in the future. | [optional] 
-**Stage** | **string** | The current immutability stage of the new entry. | [optional] 
+**ChainId** | **string** | The ID for this chain on the Factom blockchain. | [optional] 
+**Href** | **string** | An API link to retrieve all information about this chain. | [optional] 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

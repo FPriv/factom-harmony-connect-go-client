@@ -4,11 +4,11 @@ All URIs are relative to *https://connect-shared-sandbox-2445582615332.productio
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**GetAllInfo**](InfoApi.md#GetAllInfo) | **Get** / | API Info
+[**GetApiInfo**](InfoApi.md#GetApiInfo) | **Get** / | API Info
 
 
-# **GetAllInfo**
-> AllInfo GetAllInfo(ctx, )
+# **GetApiInfo**
+> AllInfo GetApiInfo(ctx, )
 API Info
 
 Request general information about the Connect API such as the version and available endpoints.

@@ -11,7 +11,7 @@
 package connectclient
 
 // An object that contains the Chain Hash (ID) as well as a URL for the chain.
-type EntryLinkChain struct {
+type EntryListChain struct {
 	// The ID for this chain on the Factom blockchain.
 	ChainId string `json:"chain_id,omitempty"`
 	// An API link to retrieve all information about this chain.
