@@ -15,13 +15,13 @@ type EntryData struct {
 	EntryHash string `json:"entry_hash"`
 	Chain EntryListChain `json:"chain"`
 	// The time when this entry was created. Sent in [ISO 8601 Format](https://en.wikipedia.org/wiki/ISO_8601). For example: `YYYY-MM-DDThh:mm:ss.ssssssZ`
-	CreatedAt string `json:"created_at"`
+	CreatedAt string `json:"created_at,omitempty"`
 	// Tags that can be used to identify your entry. You can search for records that contain a particular external_id using Connect. External IDs are returned in Base64.
 	ExternalIds []string `json:"external_ids"`
 	// This is the data that is stored by the entry. Content will be sent in Base64 format.
 	Content string `json:"content"`
 	// The level of immutability that this entry has reached.
 	Stage string `json:"stage"`
-	Dblock EntryDataDblock `json:"dblock"`
-	Eblock EntryDataEblock `json:"eblock"`
+	Dblock EntryDataDblock `json:"dblock,omitempty"`
+	Eblock EntryDataEblock `json:"eblock,omitempty"`
 }

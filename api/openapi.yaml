@@ -845,7 +845,6 @@ components:
           type: string
       required:
       - chain_id
-      - created_at
       - external_ids
       - href
       - stage
@@ -910,9 +909,6 @@ components:
       required:
       - chain_id
       - content
-      - created_at
-      - dblock
-      - eblock
       - entries
       - external_ids
       - stage
@@ -975,7 +971,6 @@ components:
           type: string
       required:
       - chain
-      - created_at
       - entry_hash
       - href
     Entry_data_dblock:
@@ -1029,9 +1024,6 @@ components:
       required:
       - chain
       - content
-      - created_at
-      - dblock
-      - eblock
       - entry_hash
       - external_ids
       - stage

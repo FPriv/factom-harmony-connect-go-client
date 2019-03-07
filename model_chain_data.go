@@ -20,8 +20,8 @@ type ChainData struct {
 	// The immutability stage that this chain has reached.
 	Stage string `json:"stage"`
 	Entries ChainDataEntries `json:"entries"`
-	Eblock ChainDataEblock `json:"eblock"`
-	Dblock ChainDataDblock `json:"dblock"`
+	Eblock ChainDataEblock `json:"eblock,omitempty"`
+	Dblock ChainDataDblock `json:"dblock,omitempty"`
 	// The time at which this chain was created. Sent in [ISO 8601 Format](https://en.wikipedia.org/wiki/ISO_8601). For example: `YYYY-MM-DDThh:mm:ss.ssssssZ` This will be null if the chain is not at least at the `factom` immutability stage.
-	CreatedAt string `json:"created_at"`
+	CreatedAt string `json:"created_at,omitempty"`
 }
