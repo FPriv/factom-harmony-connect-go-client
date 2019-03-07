@@ -63,7 +63,7 @@ func NewConfiguration() *Configuration {
 	cfg := &Configuration{
 		BasePath:      "https://connect-shared-sandbox-2445582615332.production.gw.apicast.io/v1",
 		DefaultHeader: make(map[string]string),
-		UserAgent:     "OpenAPI-Generator/1.0.0/go",
+		UserAgent:     "OpenAPI-Generator/1.0.7/go",
 	}
 	return cfg
 }

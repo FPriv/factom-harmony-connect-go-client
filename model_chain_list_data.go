@@ -17,4 +17,8 @@ type ChainListData struct {
 	ExternalIds []string `json:"external_ids"`
 	// An API link to retrieve all information about this chain.
 	Href string `json:"href"`
+	// The level of immutability that this chain has reached.
+	Stage string `json:"stage"`
+	// The time at which this chain was created. Sent in [ISO 8601 Format](https://en.wikipedia.org/wiki/ISO_8601). For example: `YYYY-MM-DDThh:mm:ss.ssssssZ` This will be null if the chain is not at least at the `factom` immutability stage.
+	CreatedAt string `json:"created_at,omitempty"`
 }

@@ -31,7 +31,7 @@ Request general information about the Connect API such as the version and availa
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 @return AllInfo
 */
-func (a *InfoApiService) GetAllInfo(ctx context.Context) (AllInfo, *http.Response, error) {
+func (a *InfoApiService) GetApiInfo(ctx context.Context) (AllInfo, *http.Response, error) {
 	var (
 		localVarHttpMethod   = strings.ToUpper("Get")
 		localVarPostBody     interface{}

@@ -15,6 +15,8 @@ type EntrySearchResponseData struct {
 	EntryHash string `json:"entry_hash"`
 	// Tags that can be used to identify this entry.
 	ExternalIds []string `json:"external_ids"`
+	// The level of immutability that this entry has reached.
+	Stage string `json:"stage"`
 	// An API link to retrieve all information about this entry.
 	Href string `json:"href"`
 }

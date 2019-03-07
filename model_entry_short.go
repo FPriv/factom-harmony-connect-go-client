@@ -13,6 +13,6 @@ package connectclient
 type EntryShort struct {
 	// The SHA256 Hash of the entry you just created. You can use this hash to referece this entry in the future.
 	EntryHash string `json:"entry_hash,omitempty"`
-	// The current immutability stage of the new entry. Only returned if callbacks are enabled.
+	// The current immutability stage of the new entry.
 	Stage string `json:"stage,omitempty"`
 }

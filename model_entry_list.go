@@ -14,7 +14,7 @@ package connectclient
 type EntryList struct {
 	// An array that contains the entries on this page.
 	Data []EntryListData `json:"data"`
-	// The first entry returned from the total set (Starting from 0).
+	// The index of the first entry returned from the total set (Starting from 0).
 	Offset int32 `json:"offset"`
 	// The number of entries returned.
 	Limit int32 `json:"limit"`

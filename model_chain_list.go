@@ -14,7 +14,7 @@ package connectclient
 type ChainList struct {
 	// An array that contains the chains on this page.
 	Data []ChainListData `json:"data"`
-	// The first chain returned from the total set (Starting from 0).
+	// The index of the first chain returned from the total set (Starting from 0).
 	Offset int32 `json:"offset"`
 	// The number of chains returned.
 	Limit int32 `json:"limit"`
