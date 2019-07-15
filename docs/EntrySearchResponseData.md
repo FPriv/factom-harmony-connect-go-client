@@ -3,7 +3,7 @@
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**EntryHash** | **string** | The SHA256 Hash of this entry. | 
+**EntryHash** | **string** | The unique identitfier of the entry. | 
 **ExternalIds** | **[]string** | Tags that can be used to identify this entry. | 
 **Stage** | **string** | The level of immutability that this entry has reached. | 
 **Href** | **string** | An API link to retrieve all information about this entry. | 
