@@ -158,25 +158,27 @@ Class | Method | HTTP request | Description
 
 ## Documentation For Authorization
 
-## AppId
-- **Type**: API key 
+You can retreive your Harmony Connect authentication details by creating an account at account.factom.com. The Base URL and API Keys can be found on the application details page.
+
+### BaseURL
 
 Example
 ```golang
-auth := context.WithValue(context.Background(), sw.ContextAPIKey, sw.APIKey{
-	Key: "APIKEY",
-})
-r, err := client.Service.Operation(auth, args)
+config := connect_client.NewConfiguration()
+config.BasePath = "YOUR BASE PATH"
+client := connect_client.NewAPIClient(config)
 ```
-## AppKey
-- **Type**: API key 
+
+### API Keys
 
 Example
 ```golang
-auth := context.WithValue(context.Background(), sw.ContextAPIKey, sw.APIKey{
-	Key: "APIKEY",
-})
-r, err := client.Service.Operation(auth, args)
+keys := connect_client.APIKey{
+	AppId: "YOUR APP ID", 
+	AppKey: "YOUR APP KEY",
+}
+
+auth := context.WithValue(context.Background(), connect_client.ContextAPIKey, keys)
 ```
 
 ## Support
