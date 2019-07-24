@@ -1,6 +1,6 @@
 # \EntriesApi
 
-All URIs are relative to *https://connect-shared-sandbox-2445582615332.production.gw.apicast.io/v1*
+All URIs are relative to *https://ephemeral.api.factom.com/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
@@ -32,9 +32,9 @@ Optional parameters are passed through a pointer to a GetEntriesByChainIDOpts st
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **limit** | **optional.Int32**| The number of items you would like back in each page. | 
- **offset** | **optional.Int32**| The offset parameter allows you to select which item you would like to start from when you get back a list from Connect. For example, if you&#39;ve already seen the first 15 items and you&#39;d like the next set, you would send an offset of 15. &#x60;offset&#x3D;0&#x60; starts from the first item of the set and is the default position. | 
- **stages** | **optional.String**| The immutability stages you want to restrict results to. You can choose any from &#x60;replicated&#x60;, &#x60;factom&#x60;, and &#x60;anchored&#x60;. If you would like to search among multiple stages, send them in a comma separated string. For example: &#x60;&#39;replicated,factom&#39;&#x60;. | 
+ **limit** | **int32**| The number of items you would like back in each page. | 
+ **offset** | **int32**| The offset parameter allows you to select which item you would like to start from when you get back a list from Connect. For example, if you&#39;ve already seen the first 15 items and you&#39;d like the next set, you would send an offset of 15. &#x60;offset&#x3D;0&#x60; starts from the first item of the set and is the default position. | 
+ **stages** | **string**| The immutability stages you want to restrict results to. You can choose any from &#x60;replicated&#x60;, &#x60;factom&#x60;, and &#x60;anchored&#x60;. If you would like to search among multiple stages, send them in a comma separated string. For example: &#x60;&#39;replicated,factom&#39;&#x60;. | 
 
 ### Return type
 
@@ -63,7 +63,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
   **chainId** | **string**| Chain identifier | 
-  **entryHash** | **string**| The SHA256 hash of the entry. | 
+  **entryHash** | **string**| The unique identitfier of the entry. | 
 
 ### Return type
 
@@ -158,8 +158,8 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
 
- **limit** | **optional.Int32**| The number of items you would like back in each page. | 
- **offset** | **optional.Int32**| The offset parameter allows you to select which item you would like to start from when you get back a list from Connect. For example, if you&#39;ve already seen the first 15 items and you&#39;d like the next set, you would send an offset of 15. &#x60;offset&#x3D;0&#x60; starts from the first item of the set and is the default position. | 
+ **limit** | **int32**| The number of items you would like back in each page. | 
+ **offset** | **int32**| The offset parameter allows you to select which item you would like to start from when you get back a list from Connect. For example, if you&#39;ve already seen the first 15 items and you&#39;d like the next set, you would send an offset of 15. &#x60;offset&#x3D;0&#x60; starts from the first item of the set and is the default position. | 
 
 ### Return type
 
