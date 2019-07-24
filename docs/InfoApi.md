@@ -1,6 +1,6 @@
 # \InfoApi
 
-All URIs are relative to *https://connect-shared-sandbox-2445582615332.production.gw.apicast.io/v1*
+All URIs are relative to *https://ephemeral.api.factom.com/v1*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------

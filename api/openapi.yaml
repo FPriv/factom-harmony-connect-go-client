@@ -6,9 +6,9 @@ info:
     url: https://docs.harmony.factom.com
   description: An easy to use API that helps you access the Factom blockchain.
   title: Harmony Connect
-  version: 1.0.17
+  version: 1.0.19
 servers:
-- url: https://connect-shared-sandbox-2445582615332.production.gw.apicast.io/v1
+- url: https://ephemeral.api.factom.com/v1
 tags:
 - description: Get information about the API
   name: Info
@@ -16,6 +16,10 @@ tags:
   name: Chains
 - description: Commands dealing with Entries
   name: Entries
+- description: Commands dealing with Digital Identities
+  name: Identities
+- description: Commands related to proving the validity of entries that have been published to a Factom blockchain.
+  name: Proofs
 paths:
   /:
     get:
@@ -186,7 +190,7 @@ paths:
         schema:
           type: string
         style: simple
-      - description: The SHA256 hash of the entry.
+      - description: The unique identitfier of the entry.
         example: db
         explode: false
         in: path
@@ -213,6 +217,15 @@ paths:
       description: List all entries contained on the specified chain.
       operationId: getEntriesByChainID
       parameters:
+      - description: Chain identifier
+        example: 285904
+        explode: false
+        in: path
+        name: chain_id
+        required: true
+        schema:
+          type: string
+        style: simple
       - description: The number of items you would like back in each page.
         example: "15"
         explode: true
@@ -233,15 +246,6 @@ paths:
           format: int32
           type: integer
         style: form
-      - description: Chain identifier
-        example: 285904
-        explode: false
-        in: path
-        name: chain_id
-        required: true
-        schema:
-          type: string
-        style: simple
       - description: 'The immutability stages you want to restrict results to. You
           can choose any from `replicated`, `factom`, and `anchored`. If you would
           like to search among multiple stages, send them in a comma separated string.
@@ -407,8 +411,425 @@ paths:
       summary: Search Chain's Entries
       tags:
       - Entries
+  /identities/{identity_chain_id}:
+    get:
+      description: Retrieve the details about a particular Identity Chain.
+      operationId: getIdChainbyId
+      parameters:
+      - description: The hex encoded string that points to the identity's chain
+        example: 72933895e24e77d8a46482731386a6f177d61777179a5b11dde582e692910eb0
+        explode: false
+        in: path
+        name: identity_chain_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityChain'
+          description: OK
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Bad Request
+        404:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+        500:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Internal Server Error
+      security:
+      - AppId: []
+      - AppKey: []
+      summary: Get Identity Chain Info
+      tags:
+      - Identities
+  /identities:
+    post:
+      description: Creates a new identity chain. To create the chain, you'll need to include a unique name array and an array of public keys. If successful, returns information about the chain that was created.
+      operationId: postIdChain
+      requestBody:
+        $ref: '#/components/requestBodies/postIdentityBody'
+      responses:
+        202:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChainShort'
+          description: Accepted
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Bad Request
+        409:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Conflict
+        500:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Internal Server Error
+      security:
+      - AppId: []
+      - AppKey: []
+      summary: Create Identity Chain
+      tags:
+      - Identities
+  /identities/{identity_chain_id}/keys/{key_string}:
+    get:
+      description: Retreive information about a specific public key for a given Identity, including the heights at which the key was activated and retired if applicable.
+      operationId: getKeybyEntryHash
+      parameters:
+      - description: The hex encoded string that points to the identity's chain
+        example: 72933895e24e77d8a46482731386a6f177d61777179a5b11dde582e692910eb0
+        explode: false
+        in: path
+        name: identity_chain_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The public key string. Must be in base58 idpub format.
+        example: db
+        explode: false
+        in: path
+        name: key_string
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityKey'
+          description: OK
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Bad Request
+        404:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+        500:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Internal Server Error
+      security:
+      - AppId: []
+      - AppKey: []
+      summary: Get Key Info
+      tags:
+      - Identities
+  /identities/{identity_chain_id}/keys:
+    get:
+      description: Returns all of the keys, past and present, associated with a particular Identity. Results are paginated and ordered by activation height.
+      operationId: getKeysbyIdChainId
+      parameters:
+      - description: The hex encoded string that points to the identity's chain
+        example: 72933895e24e77d8a46482731386a6f177d61777179a5b11dde582e692910eb0
+        explode: false
+        in: path
+        name: identity_chain_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: The number of items you would like back in each page.
+        example: "15"
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      - description: The offset parameter allows you to select which item you would like to start from when you get back a list from Connect. For example, if you've already seen the first 15 items and you'd like the next set, you would send an offset of 15. `offset=0` starts from the first item of the set and is the default position.
+        example: "2"
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeyList'
+          description: OK
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Bad Request
+        404:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+        500:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Internal Server Error
+      security:
+      - AppId: []
+      - AppKey: []
+      summary: Get Identity Chain's Keys
+      tags:
+      - Identities
+    post:
+      description: "Retires an existing key from an identity and replaces it with\
+        \ a new one. To do this, a user must send the key to be replaced (`old_key`),\
+        \ the `new_key`, the signing key that authorizes the replacement and a signed\
+        \ message from the signing key. The signing key must be either equal to or\
+        \ senior to the key that is being replaced. \n*Note: You may not reuse a key.\
+        \ If the `new_key` has been used by this Identity at any level, the replacement\
+        \ will fail.*"
+      operationId: postKeytoIdChainId
+      parameters:
+      - description: The hex encoded string that points to the identity's chain
+        example: 72933895e24e77d8a46482731386a6f177d61777179a5b11dde582e692910eb0
+        explode: false
+        in: path
+        name: identity_chain_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        $ref: '#/components/requestBodies/postKeyBody'
+      responses:
+        202:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryShort'
+          description: Accepted
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Bad Request
+        404:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Not Found
+        422:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Unprocessable entity
+        500:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Internal Server Error
+      security:
+      - AppId: []
+      - AppKey: []
+      summary: Replace Identity Key
+      tags:
+      - Identities
+  /receipts/{entry_hash}:
+    get:
+      description: Retrieve a receipt providing cryptographically verifiable proof that information was recorded in the Factom blockchain.
+      operationId: getReceiptsbyEntry
+      parameters:
+      - description: The unique identitfier of the entry.
+        example: db
+        explode: false
+        in: path
+        name: entry_hash
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReceiptLong'
+          description: OK
+        404:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Page Not Found
+        500:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Internal Server Error
+      security:
+      - AppId: []
+      - AppKey: []
+      summary: Get Entry's Receipts
+      tags:
+      - Proofs
+  /anchors/{object_id}:
+    get:
+      description: "Retreive the blockchain anchors of an entry, chain, or block.\
+        \ Returns an array of anchors that may be of type ethereum, bitcoin, or factom.\
+        \ The valid identifiers for the objects that can be anchored are as follows:\
+        \ \n* Entry - Entry Hash\n* Chain - Chain ID\n* Directory Block - Height or\
+        \ Key Merkle Root\n* Entry Block - Key Merkle Root\n* Factoid Block - Key\
+        \ Merkle Root"
+      operationId: getAnchorbySearch
+      parameters:
+      - description: Object identifier.  Used to identify an entry, chain, or block that has been published on the Factom blockchain. These objects can be identified by their hash, ID, height, or key Merkle root.
+        explode: false
+        in: path
+        name: object_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnchorLong'
+          description: OK
+        404:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Page Not Found
+        500:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+          description: Internal Server Error
+      security:
+      - AppId: []
+      - AppKey: []
+      summary: Get Object's Anchors
+      tags:
+      - Proofs
+  /search:
+    get:
+      description: Search for something on the Factom blockchain. You may search for Directory Blocks (by height or key Merkle root), Entry Blocks (by key Merkle root), Factoid Blocks (by key Merkle root), Chains (by Chain ID), Entries (by Entry Hash), Addresses (by user address or address), and Transactions (by transaction ID).
+      operationId: getSearch
+      parameters:
+      - description: The term that you are searching for. You may search for Directory Blocks (by height or key Merkle root), Entry Blocks (by key Merkle root), Factoid Blocks (by key Merkle root), Chains (by Chain ID), Entries (by Entry Hash), Addresses (by user address or address), and Transactions (by transaction ID).
+        explode: true
+        in: query
+        name: term
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: When entered, filters chain and entry responses by immutability stage. Must be either `replicated`, `factom`, or `anchored`.
+        explode: true
+        in: query
+        name: allowed_stages
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+          description: OK
+        404:
+          content:
+            application/json:
+              schema:
+                type: object
+          description: No Results
+      security:
+      - AppId: []
+      - AppKey: []
+      summary: Search
+      tags:
+      - Proofs
 components:
   parameters:
+    dblock_id:
+      description: Directory Block identifier. You can identify a directory block by either its block height or key Merkle root.
+      explode: false
+      in: path
+      name: dblock_id
+      required: true
+      schema:
+        type: string
+      style: simple
+    object_id:
+      description: Object identifier.  Used to identify an entry, chain, or block that has been published on the Factom blockchain. These objects can be identified by their hash, ID, height, or key Merkle root.
+      explode: false
+      in: path
+      name: object_id
+      required: true
+      schema:
+        type: string
+      style: simple
+    ablock_id:
+      description: Administrative Block identifier
+      explode: false
+      in: path
+      name: ablock_id
+      required: true
+      schema:
+        type: string
+      style: simple
+    tx_id:
+      description: Transaction identifier
+      explode: false
+      in: path
+      name: tx_id
+      required: true
+      schema:
+        type: string
+      style: simple
     hash:
       description: The hash of an entry, admin block, or entry credit block.
       example: 285904
@@ -450,11 +871,31 @@ components:
         type: string
       style: simple
     entry_hash:
-      description: The SHA256 hash of the entry.
+      description: The unique identitfier of the entry.
       example: db
       explode: false
       in: path
       name: entry_hash
+      required: true
+      schema:
+        type: string
+      style: simple
+    identity_chain_id:
+      description: The hex encoded string that points to the identity's chain
+      example: 72933895e24e77d8a46482731386a6f177d61777179a5b11dde582e692910eb0
+      explode: false
+      in: path
+      name: identity_chain_id
+      required: true
+      schema:
+        type: string
+      style: simple
+    key_string:
+      description: The public key string. Must be in base58 idpub format.
+      example: db
+      explode: false
+      in: path
+      name: key_string
       required: true
       schema:
         type: string
@@ -493,12 +934,42 @@ components:
       schema:
         type: string
       style: form
+    term:
+      description: The term that you are searching for. You may search for Directory Blocks (by height or key Merkle root), Entry Blocks (by key Merkle root), Factoid Blocks (by key Merkle root), Chains (by Chain ID), Entries (by Entry Hash), Addresses (by user address or address), and Transactions (by transaction ID).
+      explode: true
+      in: query
+      name: term
+      required: false
+      schema:
+        type: string
+      style: form
+    allowed_stages:
+      description: When entered, filters chain and entry responses by immutability stage. Must be either `replicated`, `factom`, or `anchored`.
+      explode: true
+      in: query
+      name: allowed_stages
+      required: false
+      schema:
+        type: string
+      style: form
   requestBodies:
     postSearchBody:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/SearchBody'
+      required: true
+    postIdentityBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/IdentityCreate'
+      required: true
+    postKeyBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/IdentityKeyReplace'
       required: true
   schemas:
     AllInfo:
@@ -508,13 +979,23 @@ components:
           chains: https://api.factom.com/apollo/v1/chains
       properties:
         version:
-          description: Connect version
+          description: Current version of the Connect API
           type: string
         links:
           $ref: '#/components/schemas/AllInfo_links'
       required:
       - links
       - version
+      type: object
+    ErrorMessage:
+      properties:
+        errors:
+          description: A list of errors caused by the previous request.
+          items:
+            $ref: '#/components/schemas/ErrorMessage_errors'
+          type: array
+      required:
+      - errors
       type: object
     SearchBody:
       description: The external IDs of the chains or entries you want to retrieve. You must enter these External IDs in Base64 format.
@@ -655,7 +1136,7 @@ components:
           description: This is the unique identifier created for each chain.
           type: string
         entry_hash:
-          description: The SHA256 Hash of the chain's first entry.
+          description: The unique identifier of the chain's first entry.
           type: string
         stage:
           description: The immutability stage that this chain has reached.
@@ -807,12 +1288,1267 @@ components:
         stage: replicated
       properties:
         entry_hash:
-          description: The SHA256 Hash of the entry you just created. You can use this hash to referece this entry in the future.
+          description: The unique identifier of the entry you just created. You can use this hash to referece this entry in the future.
           type: string
         stage:
           description: The current immutability stage of the new entry.
           type: string
       type: object
+    IdentityChain:
+      example:
+        stage: stage
+        chain_id: chain_id
+        all_keys_href: all_keys_href
+        name:
+        - name
+        - name
+        active_keys:
+        - data:
+            key: key
+            activated_height: 6
+            retired_height: 1
+        - data:
+            key: key
+            activated_height: 6
+            retired_height: 1
+        version: version
+        created_height: 0
+      properties:
+        version:
+          description: The Identity Chain’s schema version. This details the format of this digital identity. More information about Factom Identity Chain schemas can be seen [here]().
+          type: string
+        stage:
+          description: The immutability stage that this chain has reached. The identity can be considered in use once it reaches the `factom` stage.
+          type: string
+        created_height:
+          description: The block height at which this chain was written into the Factom blockchain. This is `null` if the chain has not reached the `factom` stage.
+          format: int32
+          type: integer
+        chain_id:
+          description: The Chain ID for this identity chain.
+          type: string
+        name:
+          description: A unique array of strings that are associated with this identity.
+          items:
+            type: string
+          type: array
+        active_keys:
+          description: Contains the currently active public keys for this identity.
+          items:
+            $ref: '#/components/schemas/IdentityKeyShort'
+          type: array
+        all_keys_href:
+          description: An API link to retrieve the keys for this identity.
+          type: string
+      required:
+      - active_keys
+      - all_keys_href
+      - chain_id
+      - name
+      - stage
+      - version
+      type: object
+    IdentityCreate:
+      example:
+        callback_url: callback_url
+        callback_stages:
+        - callback_stages
+        - callback_stages
+        names:
+        - names
+        - names
+        keys:
+        - keys
+        - keys
+      properties:
+        names:
+          description: "A unique array of strings that together constitute the Identity's\
+            \ name. Each string should be in Base64 format. \n *Note: It is best to\
+            \ avoid adding personally identifiable information to the blockchain.*"
+          items:
+            type: string
+          type: array
+        keys:
+          description: A list of public keys that will be used to verify this Indenty’s signatures. You may initiate an identity with as many keys as you like. The array of keys should be sent in order of priority with 0 being the master key. The keys should be sent as Base58 strings in IdPub format.
+          items:
+            description: One of the public keys.
+            type: string
+          type: array
+        callback_url:
+          description: The URL where you would like to receive the callback from Connect. If this is not specified, callbacks will not activate.
+          type: string
+        callback_stages:
+          description: 'The stages that you would like to trigger a callback from
+            Connect. This list can include any or all of the three stages: `replicated`,
+            `factom`, and `anchored`. If callbacks are activated and this field is
+            not sent, it will default to `factom` and `anchored`'
+          items:
+            type: string
+          type: array
+      required:
+      - keys
+      - names
+      type: object
+    KeyList:
+      example:
+        data:
+        - data:
+            priority: 1
+            key: key
+            activated_height: 0
+            retired_height: 6
+            entry_hash: entry_hash
+        - data:
+            priority: 1
+            key: key
+            activated_height: 0
+            retired_height: 6
+            entry_hash: entry_hash
+        offset: 0
+        limit: 6
+        count: 1
+      properties:
+        data:
+          description: The keys returned in this set.
+          items:
+            $ref: '#/components/schemas/IdentityKey'
+          type: array
+        offset:
+          description: The index of the first key returned from the total set (Starting from 0).
+          format: int32
+          type: integer
+        limit:
+          description: The number of keys returned per page.
+          format: int32
+          type: integer
+        count:
+          description: The total number of keys seen.
+          format: int32
+          type: integer
+      required:
+      - count
+      - data
+      - limit
+      - offset
+      type: object
+    IdentityKey:
+      example:
+        data:
+          priority: 1
+          key: key
+          activated_height: 0
+          retired_height: 6
+          entry_hash: entry_hash
+      properties:
+        data:
+          $ref: '#/components/schemas/IdentityKey_data'
+      required:
+      - data
+      type: object
+    IdentityKeyShort:
+      example:
+        data:
+          key: key
+          activated_height: 6
+          retired_height: 1
+      properties:
+        data:
+          $ref: '#/components/schemas/IdentityKeyShort_data'
+      required:
+      - data
+      type: object
+    IdentityKeyReplace:
+      example:
+        new_key: new_key
+        callback_url: callback_url
+        callback_stages:
+        - callback_stages
+        - callback_stages
+        signature: signature
+        signer_key: signer_key
+        old_key: old_key
+      properties:
+        old_key:
+          description: The public key you would like to replace. This should be sent as a Base58 string in IdPub format.
+          type: string
+        new_key:
+          description: The public key that you would like to activate. This should be sent as a Base58 string in IdPub format.
+          type: string
+        signer_key:
+          description: The key you are using to authorize the replacement. Must be equal to or higher level than the key you want to replace. This should be sent as a Base58 string in IdPub format.
+          type: string
+        signature:
+          description: A signature that proves ownership of the `signer_key`. This signature should use the [Ed25519](https://ed25519.cr.yp.to/) specification. The signed message should be the Identity Chain ID, the Old Key, and the New Key in that order. The message should be a single string with no whitespace or separators between the three parts.
+          type: string
+        callback_url:
+          description: The URL where you would like to receive the callback from Connect. If this is not specified, callbacks will not activate.
+          type: string
+        callback_stages:
+          description: 'The stages that you would like to trigger a callback from
+            Connect. This list can include any or all of the three stages: `replicated`,
+            `factom`, and `anchored`. If callbacks are activated and this field is
+            not sent, it will default to `factom` and `anchored`'
+          items:
+            type: string
+          type: array
+      required:
+      - new_key
+      - old_key
+      - signature
+      - signer_key
+      type: object
+    DBlockLong:
+      description: A single Directory block from the factom blockchain.
+      properties:
+        height:
+          description: The height of a directory block indicates how many blocks were created before this block. This is used to identify blocks in the blockchain.
+          type: string
+        started_at:
+          description: 'The timestamp for when this block was built. Sent in [ISO
+            8601 Format](https://en.wikipedia.org/wiki/ISO_8601). For example: `YYYY-MM-DDThh:mm:ssZ`'
+          type: string
+        keymr:
+          description: The Key Merkle Root for this block.
+          items:
+            type: string
+          type: array
+        btc_anchor_entry:
+          $ref: '#/components/schemas/DBlockLong_btc_anchor_entry'
+        btc_block_hash:
+          description: The bitcoin block hash for the bitcoin anchor that matches this directory block.
+          type: string
+        btc_transaction:
+          description: The bitcoin transaction ID for the transaction that includes the anchor message.
+          type: string
+        prev:
+          $ref: '#/components/schemas/DBlockLong_prev'
+        next:
+          $ref: '#/components/schemas/DBlockLong_next'
+        ablock:
+          $ref: '#/components/schemas/DBlockLong_ablock'
+        ecblock:
+          $ref: '#/components/schemas/DBlockLong_ecblock'
+        fblock:
+          $ref: '#/components/schemas/DBlockLong_fblock'
+        eblocks:
+          description: The entry blocks contained in this directory block.
+          items:
+            $ref: '#/components/schemas/DBlockLong_eblocks'
+          type: array
+      type: object
+    DBlockShort:
+      description: A single Directory block from the factom blockchain.
+      properties:
+        height:
+          description: The height of a directory block indicates how many blocks were created before this block. This is used to identify blocks in the blockchain.
+          format: int32
+          type: integer
+        started_at:
+          description: 'The timestamp for when this block was built. Sent in [ISO
+            8601 Format](https://en.wikipedia.org/wiki/ISO_8601). For example: `YYYY-MM-DDThh:mm:ssZ`'
+          type: string
+        keymr:
+          description: The Key Merkle Root for this block.
+          type: string
+        href:
+          description: The link to retrieve all information for this directory block.
+          type: string
+        admin_entries:
+          description: The number of entries contained in the admin block.
+          type: string
+        ec_entries:
+          description: The number of entries contained in the entry credit block.
+          type: string
+        factoid_entries:
+          description: The number of entries contained in the factoid block.
+          type: string
+        entries:
+          description: The number of entries contained in the entry blocks.
+          type: string
+      type: object
+    DBlockLink:
+      description: A link to the directory block.
+      example:
+        keymr: keymr
+        href: href
+        height: 0
+      properties:
+        keymr:
+          description: The Key Merkle Root for this directory block.
+          type: string
+        height:
+          description: The Factom block height of this block.
+          format: int32
+          type: integer
+        href:
+          description: An API link to retrieve all available information about this directory block.
+          type: string
+      required:
+      - height
+      - href
+      - keymr
+      type: object
+    DBlockList:
+      properties:
+        data:
+          description: The directory blocks returned in this set.
+          items:
+            $ref: '#/components/schemas/DBlockShort'
+          type: array
+        offset:
+          description: The index of the first block returned from the total set (Starting from 0).
+          format: int32
+          type: integer
+        limit:
+          description: The number of blocks returned per page.
+          format: int32
+          type: integer
+        count:
+          description: The total number of blocks seen.
+          format: int32
+          type: integer
+      required:
+      - count
+      - data
+      - limit
+      - offset
+      type: object
+    ABlockLong:
+      description: A single Admin block from the factom blockchain.
+      properties:
+        hash:
+          description: The SHA256 Hash of this block.
+          type: string
+        back_reference_hash:
+          description: The hash of the previous admin block.
+          type: string
+        prev:
+          $ref: '#/components/schemas/ABlockLong_prev'
+        next:
+          $ref: '#/components/schemas/ABlockLong_next'
+        dblock:
+          $ref: '#/components/schemas/ABlockLong_dblock'
+        entries:
+          description: The entries contained in this admin block.
+          type: string
+      type: object
+    ABlockShort:
+      description: A single Admin block from the factom blockchain.
+      properties:
+        hash:
+          description: The SHA256 Hash of this block.
+          type: string
+        href:
+          description: A link to retrieve all data for this admin block.
+          type: string
+        dblock:
+          $ref: '#/components/schemas/ABlockShort_dblock'
+      type: object
+    ABlockList:
+      properties:
+        data:
+          description: The admin blocks returned in this set.
+          items:
+            $ref: '#/components/schemas/ABlockShort'
+          type: array
+        offset:
+          description: The index of the first block returned from the total set (Starting from 0).
+          format: int32
+          type: integer
+        limit:
+          description: The number of blocks returned per page.
+          format: int32
+          type: integer
+        count:
+          description: The total number of blocks seen.
+          format: int32
+          type: integer
+      required:
+      - count
+      - data
+      - limit
+      - offset
+      type: object
+    ABlockEntryList:
+      properties:
+        data:
+          description: The Admin block entries returned in this set.
+          items:
+            $ref: '#/components/schemas/ABlockEntryLink'
+          type: array
+        offset:
+          description: The index of the first block returned from the total set (Starting from 0).
+          format: int32
+          type: integer
+        limit:
+          description: The number of blocks returned per page.
+          format: int32
+          type: integer
+        count:
+          description: The total number of entries seen.
+          format: int32
+          type: integer
+      required:
+      - count
+      - data
+      - limit
+      - offset
+      type: object
+    ABlockEntry:
+      properties:
+        data:
+          $ref: '#/components/schemas/ABlockEntry_data'
+      required:
+      - data
+      type: object
+    ABlockEntryLink:
+      description: An admin block entry.
+      properties:
+        hash:
+          description: The SHA256 Hash of this entry.
+          type: string
+        content:
+          description: The content of the admin block entry.
+          type: string
+        created_at:
+          description: 'The timestamp for when this entry was created. Sent in [ISO
+            8601 Format](https://en.wikipedia.org/wiki/ISO_8601). For example: `YYYY-MM-DDThh:mm:ssZ`'
+          type: string
+        href:
+          description: An API link to retreive all of the information about the entry.
+          type: string
+      required:
+      - content
+      - created_at
+      - hash
+      - href
+      type: object
+    ECBlockLong:
+      description: A single entry credit block from the factom blockchain.
+      properties:
+        hash:
+          description: The SHA256 Hash of this entry credit block.
+          type: string
+        dblock:
+          $ref: '#/components/schemas/ECBlockLong_dblock'
+        entries:
+          description: The entries contained in this admin block.
+          type: string
+      type: object
+    ECBlockShort:
+      description: A single entry credit block from the factom blockchain.
+      properties:
+        hash:
+          description: The SHA256 Hash of this entry credit block.
+          type: string
+        href:
+          description: An API link to obtain the full set of data for this entry credit block.
+          type: string
+        dblock:
+          $ref: '#/components/schemas/ECBlockLong_dblock'
+      type: object
+    ECBlockList:
+      properties:
+        data:
+          description: The entry credit blocks returned in this set.
+          items:
+            $ref: '#/components/schemas/ECBlockShort'
+          type: array
+        offset:
+          description: The index of the first block returned from the total set (Starting from 0).
+          format: int32
+          type: integer
+        limit:
+          description: The number of blocks returned per page.
+          format: int32
+          type: integer
+        count:
+          description: The total number of blocks seen.
+          format: int32
+          type: integer
+      required:
+      - count
+      - data
+      - limit
+      - offset
+      type: object
+    ECBlockEntryList:
+      properties:
+        data:
+          description: The commits returned in this set.
+          items:
+            $ref: '#/components/schemas/CommitLink'
+          type: array
+        offset:
+          description: The index of the first block returned from the total set (Starting from 0).
+          format: int32
+          type: integer
+        limit:
+          description: The number of blocks returned per page.
+          format: int32
+          type: integer
+        count:
+          description: The total number of commits seen.
+          format: int32
+          type: integer
+      required:
+      - count
+      - data
+      - limit
+      - offset
+      type: object
+    CommitLink:
+      properties:
+        hash:
+          description: The SHA256 Hash of this commit.
+          type: string
+        created_at:
+          description: 'The timestamp for when this commit was created. Sent in [ISO
+            8601 Format](https://en.wikipedia.org/wiki/ISO_8601). For example: `YYYY-MM-DDThh:mm:ssZ`'
+          type: string
+        href:
+          description: An API link to retreive all of the information about this commit.
+          type: string
+      required:
+      - created_at
+      - hash
+      - href
+      type: object
+    CommitLong:
+      properties:
+        hash:
+          description: The SHA256 Hash of this commit.
+          type: string
+        tx_id:
+          description: The entry credit transaction ID that resulted in this commit.
+          type: string
+        version:
+          description: The type version of this transaction.
+          format: int32
+          type: integer
+        created_at:
+          description: 'The timestamp for when this commit was created. Sent in [ISO
+            8601 Format](https://en.wikipedia.org/wiki/ISO_8601). For example: `YYYY-MM-DDThh:mm:ssZ`'
+          type: string
+        chain_id:
+          description: The ID of the chain that was altered by this commit.
+          type: string
+        weld:
+          description: The commit weld for this commit. This is the double hash (SHA256d) of the Entry Hash concatenated with the ChainID.
+          type: string
+        entry_hash:
+          description: The unique identifier of the entry that was created by this commit.
+          type: string
+        entry_credits:
+          description: The number of entry credits spent on this commit.
+          format: int32
+          type: integer
+        address:
+          description: The entry credit address that initiated this transaction.
+          type: string
+        signature:
+          description: The signature that authorized this commit.
+          type: string
+        ec_block:
+          $ref: '#/components/schemas/ECBlockShort'
+      required:
+      - address
+      - chain_id
+      - created_at
+      - ecblock
+      - entry_credits
+      - entry_hash
+      - hash
+      - signature
+      - tx_id
+      - version
+      - weld
+      type: object
+    EBlockLinkChain:
+      properties:
+        keymr:
+          description: The Key Merkle Root for this entry block.
+          type: string
+        href:
+          description: An API link to retrieve all information about this entry block.
+          type: string
+        chain:
+          $ref: '#/components/schemas/DBlockLong_btc_anchor_entry_chain'
+      type: object
+    EBlockLink:
+      description: A link to the entry block.
+      example:
+        keymr: keymr
+        href: href
+      properties:
+        keymr:
+          description: The Key Merkle Root for this entry block.
+          type: string
+        href:
+          description: An API link to retrieve all information about this entry block.
+          type: string
+      type: object
+    EBlockShort:
+      properties:
+        keymr:
+          description: The Key Merkle Root for this entry block.
+          type: string
+        chain:
+          $ref: '#/components/schemas/EBlockShort_chain'
+        dblock:
+          $ref: '#/components/schemas/EBlockShort_dblock'
+        started_at:
+          description: 'The timestamp for when this block was built. Sent in [ISO
+            8601 Format](https://en.wikipedia.org/wiki/ISO_8601). For example: `YYYY-MM-DDThh:mm:ssZ`'
+          type: object
+        href:
+          description: An API link to retrieve all information about this entry block.
+          type: string
+        entries:
+          description: The number of entries contained within this entry block.
+          format: int32
+          type: integer
+      required:
+      - chain
+      - dblock
+      - entries
+      - href
+      - keymr
+      - started_at
+      type: object
+    EBlockLong:
+      properties:
+        keymr:
+          description: The Key Merkle Root for this entry block.
+          type: string
+        sequence:
+          description: Shows where this entry block falls within the list of entry blocks that are contained in the parent directory block.
+          format: int32
+          type: integer
+        prev:
+          $ref: '#/components/schemas/EBlockLong_prev'
+        next:
+          $ref: '#/components/schemas/EBlockLong_next'
+        chain:
+          $ref: '#/components/schemas/EBlockShort_chain'
+        dblock:
+          $ref: '#/components/schemas/EBlockShort_dblock'
+        started_at:
+          description: 'The timestamp for when this block was built. Sent in [ISO
+            8601 Format](https://en.wikipedia.org/wiki/ISO_8601). For example: `YYYY-MM-DDThh:mm:ssZ`'
+          type: object
+        href:
+          description: An API link to retrieve all information about this entry block.
+          type: string
+        entries:
+          description: An API link to all of the entries in this entry block.
+          type: string
+      required:
+      - chain
+      - dblock
+      - entries
+      - href
+      - keymr
+      - sequence
+      - started_at
+      type: object
+    EBlockList:
+      properties:
+        data:
+          description: The entry blocks returned in this set.
+          items:
+            $ref: '#/components/schemas/EBlockLink'
+          type: array
+        offset:
+          description: The index of the first block returned from the total set (Starting from 0).
+          format: int32
+          type: integer
+        limit:
+          description: The number of blocks returned per page.
+          format: int32
+          type: integer
+        count:
+          description: The total number of blocks seen.
+          format: int32
+          type: integer
+      required:
+      - count
+      - data
+      - limit
+      - offset
+      type: object
+    FBlockLong:
+      description: A single factoid block from the factom blockchain.
+      properties:
+        keymr:
+          description: The SHA256 Hash of this entry.
+          type: string
+        prev:
+          $ref: '#/components/schemas/FBlockLong_prev'
+        next:
+          $ref: '#/components/schemas/FBlockLong_next'
+        dblock:
+          $ref: '#/components/schemas/ABlockLong_dblock'
+        ec_rate:
+          description: The Entry credit rate at the time this block was created.
+          type: string
+        fct_total_inputs:
+          description: The number of factoid inputs in this block.
+          type: string
+        fct_total_outputs:
+          description: The number of factoid outputs in this block.
+          type: string
+        ec_total_created:
+          description: The total number of entry credits purchased in this block.
+          type: string
+        transactions:
+          description: A list of all of the transactions that occur in this block.
+          type: string
+      type: object
+    FBlockShort:
+      description: A single factoid block from the factom blockchain.
+      properties:
+        keymr:
+          description: The SHA256 Hash of this entry.
+          type: string
+        href:
+          description: An API link to obtain the full set of data for this factoid block.
+          type: string
+        dblock:
+          $ref: '#/components/schemas/ABlockLong_dblock'
+        ec_rate:
+          description: The Entry credit rate at the time this block was created.
+          type: string
+        transactions:
+          description: The number of factoid transactions that occur in this block.
+          type: string
+      type: object
+    FBlockList:
+      properties:
+        data:
+          description: The factoid blocks returned in this set.
+          items:
+            $ref: '#/components/schemas/FBlockShort'
+          type: array
+        offset:
+          description: The index of the first block returned from the total set (Starting from 0).
+          format: int32
+          type: integer
+        limit:
+          description: The number of blocks returned per page.
+          format: int32
+          type: integer
+        count:
+          description: The total number of blocks seen.
+          format: int32
+          type: integer
+      required:
+      - count
+      - data
+      - limit
+      - offset
+      type: object
+    Address:
+      description: A factoid or entry credit address.
+      properties:
+        address:
+          description: The literal address.
+          type: string
+        user_address:
+          description: The user address.
+          type: string
+        type:
+          description: Whether this is an entry credit or factoid address.
+          type: string
+        balance:
+          description: The current entry credit or factoid balance of the address.
+          type: string
+        transactions:
+          description: A list of all transactions that this address has paricipated in.
+          type: object
+      type: object
+    AddressLink:
+      description: A link to a factoid or entry credit address.
+      properties:
+        address:
+          description: The literal address.
+          type: string
+        user_address:
+          description: The user address.
+          type: string
+        href:
+          description: An API link to obtain all data about this address.
+          type: string
+      type: object
+    AddressList:
+      properties:
+        data:
+          description: The addresses returned in this set.
+          items:
+            $ref: '#/components/schemas/AddressLink'
+          type: array
+        offset:
+          description: The index of the first address returned from the total set (Starting from 0).
+          format: int32
+          type: integer
+        limit:
+          description: The number of addresses returned per page.
+          format: int32
+          type: integer
+        count:
+          description: The total number of addresses seen.
+          format: int32
+          type: integer
+      required:
+      - count
+      - data
+      - limit
+      - offset
+      type: object
+    Transaction:
+      description: A single factoid transaction.
+      properties:
+        tx_id:
+          description: The transaction ID for this transaction.
+          type: string
+        created_at:
+          description: 'The timestamp for this transaction. Sent in [ISO 8601 Format](https://en.wikipedia.org/wiki/ISO_8601).
+            For example: `YYYY-MM-DDThh:mm:ssZ`'
+          type: string
+        fct_total_inputs:
+          description: The number of factoids coming in from the sender.
+          type: string
+        fct_total_outputs:
+          description: The number of factoids going out to the receiver.
+          type: string
+        ec_created:
+          description: The number of entry credits that have been purchased in this transaction.
+          type: string
+        ec_rate:
+          description: The price of an entry credit at the time of this transaction.
+          type: string
+        fct_fee:
+          description: The fee paid to the processor of this transaction.
+          type: string
+        dblock:
+          description: A link to the directory block that contains this transaction.
+          type: string
+        fblock:
+          description: A link to the factoid block that contains this transaction.
+          type: string
+        inputs:
+          description: All of the input transactions for this transaction.
+          type: string
+        outputs:
+          description: All of the output transactions for this transaction.
+          type: string
+      type: object
+    TransactionShort:
+      description: A single factoid transaction.
+      properties:
+        tx_id:
+          description: The transaction ID for this transaction.
+          type: string
+        created_at:
+          description: 'The timestamp for this transaction. Sent in [ISO 8601 Format](https://en.wikipedia.org/wiki/ISO_8601).
+            For example: `YYYY-MM-DDThh:mm:ssZ`'
+          type: string
+        dblock:
+          description: A link to the directory block that contains this transaction.
+          type: string
+        fblock:
+          description: A link to the factoid block that contains this transaction.
+          type: string
+        href:
+          description: An API link to obtain all data for this transaction.
+          type: string
+        inputs:
+          description: All of the input transactions for this transaction.
+          type: string
+        outputs:
+          description: All of the output transactions for this transaction.
+          type: string
+        out_ecs:
+          description: The number of entry credits that have been purchased in this transaction.
+          type: string
+      type: object
+    TransactionLink:
+      description: A single factoid transaction.
+      properties:
+        tx_id:
+          description: The transaction ID for this transaction.
+          type: string
+        created_at:
+          description: 'The timestamp for this transaction. Sent in [ISO 8601 Format](https://en.wikipedia.org/wiki/ISO_8601).
+            For example: `YYYY-MM-DDThh:mm:ssZ`'
+          type: string
+        href:
+          description: An API link to obtain all data for this transaction.
+          type: string
+        fct_total_inputs:
+          description: The number of factoids coming in from the sender.
+          type: string
+        fct_total_outputs:
+          description: The number of factoids going out to the receiver.
+          type: string
+        ec_created:
+          description: The number of entry credits that have been purchased in this transaction.
+          type: string
+        fct_fee:
+          description: The fee paid to the processor of this transaction.
+          type: string
+      type: object
+    TransactionLinkShort:
+      description: A single factoid transaction.
+      properties:
+        tx_id:
+          description: The transaction ID for this transaction.
+          type: string
+        created_at:
+          description: 'The timestamp for this transaction. Sent in [ISO 8601 Format](https://en.wikipedia.org/wiki/ISO_8601).
+            For example: `YYYY-MM-DDThh:mm:ssZ`'
+          type: string
+        href:
+          description: An API link to obtain all data for this transaction.
+          type: string
+        ec_rate:
+          description: The price of an entry credit at the time of this transaction.
+          type: string
+      type: object
+    TransactionList:
+      properties:
+        data:
+          description: The transactions returned in this set.
+          items:
+            $ref: '#/components/schemas/TransactionLink'
+          type: array
+        offset:
+          description: The index of the first transaction returned from the total set (Starting from 0).
+          format: int32
+          type: integer
+        limit:
+          description: The number of transactions returned per page.
+          format: int32
+          type: integer
+        count:
+          description: The total number of transactions seen.
+          format: int32
+          type: integer
+      required:
+      - count
+      - data
+      - limit
+      - offset
+      type: object
+    ReceiptLong:
+      example:
+        data:
+          dblock:
+            keymr: keymr
+            href: href
+            height: 0
+          created_at: created_at
+          merkle_branch:
+          - top: top
+            left: left
+            right: right
+          - top: top
+            left: left
+            right: right
+          eblock:
+            keymr: keymr
+            href: href
+          entry_serialized: entry_serialized
+          entry_hash: entry_hash
+      properties:
+        data:
+          $ref: '#/components/schemas/ReceiptLong_data'
+      required:
+      - data
+      type: object
+    AnchorLong:
+      example:
+        data:
+          dblock:
+            keymr: keymr
+            href: href
+            height: 0
+          anchors:
+          - window_mr: window_mr
+            block_hash: block_hash
+            created_at: created_at
+            merkle_branch:
+            - top: top
+              left: left
+              right: right
+            - top: top
+              left: left
+              right: right
+            tx_id: tx_id
+            entry_serialized: entry_serialized
+            contract_address: contract_address
+            entry_hash: entry_hash
+            network: bitcoin
+            dblock:
+              keymr: keymr
+              href: href
+              height: 0
+            window_start_height: 0
+            tx_index: 6
+            status: pending
+          - window_mr: window_mr
+            block_hash: block_hash
+            created_at: created_at
+            merkle_branch:
+            - top: top
+              left: left
+              right: right
+            - top: top
+              left: left
+              right: right
+            tx_id: tx_id
+            entry_serialized: entry_serialized
+            contract_address: contract_address
+            entry_hash: entry_hash
+            network: bitcoin
+            dblock:
+              keymr: keymr
+              href: href
+              height: 0
+            window_start_height: 0
+            tx_index: 6
+            status: pending
+      properties:
+        data:
+          $ref: '#/components/schemas/AnchorLong_data'
+      required:
+      - data
+      type: object
+    SingleAnchor:
+      example:
+        window_mr: window_mr
+        block_hash: block_hash
+        created_at: created_at
+        merkle_branch:
+        - top: top
+          left: left
+          right: right
+        - top: top
+          left: left
+          right: right
+        tx_id: tx_id
+        entry_serialized: entry_serialized
+        contract_address: contract_address
+        entry_hash: entry_hash
+        network: bitcoin
+        dblock:
+          keymr: keymr
+          href: href
+          height: 0
+        window_start_height: 0
+        tx_index: 6
+        status: pending
+      properties:
+        network:
+          description: Indicates the blockchain network that contains this anchor.
+          enum:
+          - bitcoin
+          - ethereum
+          - factom
+          type: string
+        status:
+          description: The confirmation status of the anchor. Either pending or confirmed.
+          enum:
+          - pending
+          - confirmed
+          type: string
+        tx_id:
+          description: Only returned for confirmed bitcoin or ethereum anchors. The bitcoin or ethereum transaction ID for the transaction that includes the anchor message.
+          type: string
+        block_hash:
+          description: Only returned for confirmed bitcoin or ethereum anchors. The hash of the bitcoin or ethereum block that contains the anchor message.
+          type: string
+        created_at:
+          description: 'Only returned for confirmed factom anchors. The time at which
+            this entry was created. Sent in [ISO 8601 Format](https://en.wikipedia.org/wiki/ISO_8601).
+            For example: `YYYY-MM-DDThh:mm:ss.ssssssZ` This will be null if the chain
+            is not at least at the `factom` immutability stage.'
+          format: ISO 8601
+          type: string
+        entry_serialized:
+          description: Only returned for confirmed factom anchors. The raw data that makes up the entry.
+          type: string
+        entry_hash:
+          description: Only returned for confirmed factom anchors. The unique identitfier of the entry.
+          type: string
+        dblock:
+          $ref: '#/components/schemas/DBlockLink'
+        merkle_branch:
+          description: Only returned for confirmed factom or ethereum anchors. The branch of the merkle tree that represents this anchor. Presented as an array of Merkle nodes.
+          items:
+            $ref: '#/components/schemas/MerkleNode'
+          type: array
+        window_start_height:
+          description: Only returned for confirmed ethereum anchors. The height of the first ethereum block that contains an anchor for this directory block. Valid anchors for the Directory block in question may also be contained in subsequent ethereum blocks.
+          format: int32
+          type: integer
+        window_mr:
+          description: Only returned for confirmed ethereum anchors. Window Merkle Root. This is the Merkle root that was published in the ethereum transaction that anchors this directory block. The root represents every one of the 1000 Directory blocks that's included in this anchor.
+          type: string
+        contract_address:
+          description: Only returned for confirmed ethereum anchors. The address of the contract that initiated the anchor transaction.
+          type: string
+        tx_index:
+          description: Only returned for confirmed ethereum anchors. The index of the transaction within the block.
+          format: int32
+          type: integer
+      required:
+      - network
+      - status
+      type: object
+    BitcoinAnchor:
+      properties:
+        network:
+          description: Indicates the blockchain network that contains this anchor.
+          enum:
+          - bitcoin
+          - ethereum
+          - factom
+          type: string
+        status:
+          description: The confirmation status of the anchor. Either pending or confirmed.
+          enum:
+          - pending
+          - confirmed
+          type: string
+        tx_id:
+          description: The bitcoin transaction ID for the transaction that includes the anchor message.
+          type: string
+        block_hash:
+          description: The hash of the bitcoin block that contains the anchor message.
+          type: string
+      required:
+      - network
+      - status
+      type: object
+    FactomAnchor:
+      properties:
+        network:
+          description: Indicates the blockchain network that contains this anchor.
+          enum:
+          - bitcoin
+          - ethereum
+          - factom
+          type: string
+        status:
+          description: The confirmation status of the anchor. Either pending or confirmed.
+          enum:
+          - pending
+          - confirmed
+          type: string
+        created_at:
+          description: 'The time at which this entry was created. Sent in [ISO 8601
+            Format](https://en.wikipedia.org/wiki/ISO_8601). For example: `YYYY-MM-DDThh:mm:ss.ssssssZ`
+            This will be null if the chain is not at least at the `factom` immutability
+            stage.'
+          format: ISO 8601
+          type: string
+        entry_serialized:
+          description: The raw data that makes up the entry.
+          type: string
+        entry_hash:
+          description: The unique identitfier of the entry.
+          type: string
+        dblock:
+          $ref: '#/components/schemas/DBlockLink'
+        merkle_branch:
+          description: The branch of the merkle tree that represents this anchor. Presented as an array of Merkle nodes.
+          items:
+            $ref: '#/components/schemas/MerkleNode'
+          type: array
+      required:
+      - network
+      - status
+      type: object
+    EthereumAnchor:
+      properties:
+        network:
+          description: Indicates the blockchain network that contains this anchor.
+          enum:
+          - bitcoin
+          - ethereum
+          - factom
+          type: string
+        status:
+          description: The confirmation status of the anchor. Either pending or confirmed.
+          enum:
+          - pending
+          - confirmed
+          type: string
+        window_start_height:
+          description: The height of the first ethereum block that contains an anchor for this directory block. Valid anchors for the Directory block in question may also be contained in subsequent ethereum blocks.
+          format: int32
+          type: integer
+        window_mr:
+          description: Window Merkle Root. This is the Merkle root that was published in the ethereum transaction that anchors this directory block. The root represents every one of the 1000 Directory blocks that's included in this anchor.
+          type: string
+        merkle_branch:
+          description: The merkle branch that leads to the Directory block in question. Relates to the Window Merkle root. Presented as an array of Merkle nodes.
+          items:
+            $ref: '#/components/schemas/MerkleNode'
+          type: array
+        contract_address:
+          description: The address of the contract that initiated the anchor transaction.
+          type: string
+        tx_id:
+          description: The ethereum transaction ID for the transaction that includes the anchor message.
+          type: string
+        tx_index:
+          description: The index of the transaction within the block.
+          format: int32
+          type: integer
+        block_hash:
+          description: The hash of the ethereum block that contains the anchor transaction.
+          type: string
+      required:
+      - network
+      - status
+      type: object
+    MerkleNode:
+      example:
+        top: top
+        left: left
+        right: right
+      properties:
+        top:
+          description: The top of this node of the Merkle tree.
+          type: string
+        right:
+          description: The right branch of this node of the Merkle tree.
+          type: string
+        left:
+          description: The left branch of this node of the Merkle tree.
+          type: string
+      type: object
+    inline_response_200_data:
+      description: The search result. Includes an API link that allows you to retreive more information about the result. Also includes additional information based on the type of result reterned.
+      example:
+        href: href
+      properties:
+        href:
+          description: An API link to retrieve all information about this search result.
+          type: string
+    inline_response_200:
+      example:
+        data:
+          href: href
+        type: type
+      properties:
+        data:
+          $ref: '#/components/schemas/inline_response_200_data'
+        type:
+          description: Tells you what type of result was found. Possible types include `directory_block`, `entry_block`, `factoid_block`, `chain`, `entry`, `address`, and `transaction`.
+          type: string
     AllInfo_links:
       description: Links to internal paths of the application
       properties:
@@ -821,6 +2557,14 @@ components:
           type: string
       required:
       - chains
+    ErrorMessage_errors:
+      description: Contains information about a single error.
+      properties:
+        details:
+          description: A detailed description of the error.
+          type: string
+      required:
+      - details
     ChainList_data:
       properties:
         chain_id:
@@ -922,7 +2666,7 @@ components:
         entry_hash: entry_hash
       properties:
         entry_hash:
-          description: The SHA256 Hash of this entry.
+          description: The unique identitfier of the entry.
           type: string
         external_ids:
           description: Tags that can be used to identify this entry.
@@ -958,7 +2702,7 @@ components:
         entry_hash: entry_hash
       properties:
         entry_hash:
-          description: The SHA256 Hash of this entry.
+          description: The unique identitfier of the entry.
           type: string
         chain:
           $ref: '#/components/schemas/EntryList_chain'
@@ -998,7 +2742,7 @@ components:
     Entry_data:
       properties:
         entry_hash:
-          description: The SHA256 Hash of this entry.
+          description: The unique identitfier of the entry.
           type: string
         chain:
           $ref: '#/components/schemas/EntryList_chain'
@@ -1007,7 +2751,7 @@ components:
             For example: `YYYY-MM-DDThh:mm:ss.ssssssZ`'
           type: string
         external_ids:
-          description: Tags that can be used to identify your entry. You can search for records that contain a particular external_id using Connect. External IDs are returned in Base64.
+          description: Tags that can be used to identify your entry. You can search for records that contain a particular `external_id` using Connect. External IDs are returned in Base64.
           items:
             type: string
           type: array
@@ -1027,6 +2771,382 @@ components:
       - entry_hash
       - external_ids
       - stage
+    IdentityKey_data:
+      example:
+        priority: 1
+        key: key
+        activated_height: 0
+        retired_height: 6
+        entry_hash: entry_hash
+      properties:
+        key:
+          description: The public key string in Base58 idpub format.
+          type: string
+        activated_height:
+          description: The height at which this key became valid.
+          format: int32
+          type: integer
+        retired_height:
+          description: The expiration height of this key. `null` if this key is currently active.
+          format: int32
+          type: integer
+        priority:
+          description: The level of this key within the hierarchy. A lower number indicates a key that allows a holder to replace higher numbered keys. The master key is priority 0.
+          format: int32
+          type: integer
+        entry_hash:
+          description: The unique identifier of the entry on the Identity chain where this key was activated.
+          type: string
+      required:
+      - key
+    IdentityKeyShort_data:
+      example:
+        key: key
+        activated_height: 6
+        retired_height: 1
+      properties:
+        key:
+          description: The public key.
+          type: string
+        activated_height:
+          description: The height at which this key became valid. `null` if this is the first key.
+          format: int32
+          type: integer
+        retired_height:
+          description: The expiration height of this key. `null` if this is the current key.
+          format: int32
+          type: integer
+      required:
+      - key
+    DBlockLong_btc_anchor_entry_chain:
+      description: An object that contains the Chain Hash (ID) as well as a URL for the chain.
+      properties:
+        chain_id:
+          description: The ID for this chain on the Factom blockchain.
+          type: string
+        href:
+          description: An API link to retrieve all information about this chain.
+          type: string
+    DBlockLong_btc_anchor_entry:
+      description: An object that contains the Entry Hash (ID) and a URL for the entry.
+      properties:
+        entry_hash:
+          description: The unique identitfier of the entry.
+          type: string
+        chain:
+          $ref: '#/components/schemas/DBlockLong_btc_anchor_entry_chain'
+        created_at:
+          description: 'The time at which this entry was created. Sent in [ISO 8601
+            Format](https://en.wikipedia.org/wiki/ISO_8601). For example: `YYYY-MM-DDThh:mm:ssZ`'
+          type: string
+        href:
+          description: An API link to retrieve all information about this entry.
+          type: string
+    DBlockLong_prev:
+      description: The previous directory block in the Factom blockchain.
+      properties:
+        keymr:
+          description: The Key Merkle Root for this directory block.
+          type: string
+        height:
+          description: The Factom block height.
+          type: string
+        href:
+          description: An API link to retrieve all information about this directory block.
+          type: string
+    DBlockLong_next:
+      description: The next directory block in the Factom blockchain. If null, this is the most recent block.
+      properties:
+        keymr:
+          description: The Key Merkle Root for this directory block.
+          type: string
+        height:
+          description: The Factom block height.
+          type: string
+        href:
+          description: An API link to retrieve all information about this directory block.
+          type: string
+    DBlockLong_ablock:
+      description: The admin block contained in this directory block.
+      properties:
+        keymr:
+          description: The Key Merkle Root for this admin block.
+          type: string
+        height:
+          description: The Factom block height.
+          type: string
+        href:
+          description: An API link to retrieve all information about this admin block.
+          type: string
+    DBlockLong_ecblock:
+      description: The entry credit block contained in this directory block.
+      properties:
+        keymr:
+          description: The Key Merkle Root for this entry credit block.
+          type: string
+        height:
+          description: The Factom block height.
+          type: string
+        href:
+          description: An API link to retrieve all information about this entry credit block.
+          type: string
+    DBlockLong_fblock:
+      description: The factoid block contained in this directory block.
+      properties:
+        keymr:
+          description: The Key Merkle Root for this factoid block.
+          type: string
+        height:
+          description: The Factom block height.
+          type: string
+        href:
+          description: An API link to retrieve all information about this factoid block.
+          type: string
+    DBlockLong_eblocks:
+      properties:
+        keymr:
+          description: The Key Merkle Root for this entry block.
+          type: string
+        href:
+          description: An API link to retrieve all information about this entry block.
+          type: string
+        chain:
+          $ref: '#/components/schemas/DBlockLong_btc_anchor_entry_chain'
+    ABlockLong_prev:
+      description: The previous admin block.
+      properties:
+        hash:
+          description: The SHA256 hash of this admin block.
+          type: string
+        href:
+          description: An API link to this Admin block.
+          type: string
+    ABlockLong_next:
+      description: The next admin block.
+      properties:
+        hash:
+          description: The SHA256 hash of this admin block.
+          type: string
+        href:
+          description: An API link to this Admin block.
+          type: string
+    ABlockLong_dblock:
+      description: The directory block that contains this factoid block.
+      properties:
+        keymr:
+          description: The Key Merkle root of the directory block.
+          type: string
+        href:
+          description: An API link to the directory block.
+          type: string
+    ABlockShort_dblock:
+      description: The directory block that contains this admin block.
+      properties:
+        hash:
+          description: The SHA256 hash of this directory block.
+          type: string
+        href:
+          description: An API link to this directory block.
+          type: string
+    ABlockEntry_data:
+      properties:
+        content:
+          description: The content of the admin block entry.
+          type: string
+        created_at:
+          description: 'The timestamp for when this entry was created. Sent in [ISO
+            8601 Format](https://en.wikipedia.org/wiki/ISO_8601). For example: `YYYY-MM-DDThh:mm:ssZ`'
+          type: string
+        ablock:
+          $ref: '#/components/schemas/ABlockShort'
+      required:
+      - ablock
+      - content
+      - created_at
+    ECBlockLong_dblock:
+      description: The directory block that contains this entry credit block.
+      properties:
+        hash:
+          description: The SHA256 hash of this directory block.
+          type: string
+        href:
+          description: An API link to this directory block.
+          type: string
+    EBlockShort_chain:
+      description: The chain that has been created or altered by this entry block.
+      properties:
+        chain_id:
+          description: The ID for this chain on the Factom blockchain.
+          type: string
+        href:
+          description: An API link to retrieve all information about this chain.
+          type: string
+      required:
+      - chain_id
+      - href
+    EBlockShort_dblock:
+      description: The directory block that contains this entry block.
+      properties:
+        keymr:
+          description: The Key Merkle Root for this directory block.
+          type: string
+        height:
+          description: The Factom block height of this block.
+          format: int32
+          type: integer
+        href:
+          description: An API link to retrieve all available information about this directory block.
+          type: string
+      required:
+      - height
+      - href
+      - keymr
+    EBlockLong_prev:
+      description: The previous entry block within the parent directory block.
+      properties:
+        keymr:
+          description: The Key Merkle Root for this entry block.
+          type: string
+        href:
+          description: An API link to retrieve all information about this entry block.
+          type: string
+    EBlockLong_next:
+      description: The next entry block within the parent directory block.
+      properties:
+        keymr:
+          description: The Key Merkle Root for this entry block.
+          type: string
+        href:
+          description: An API link to retrieve all information about this entry block.
+          type: string
+    FBlockLong_prev:
+      description: A link to the previous factoid block in the chain.
+      properties:
+        keymr:
+          description: The Key Merkle root of the factoid block.
+          type: string
+        href:
+          description: An API link to the factoid block.
+          type: string
+    FBlockLong_next:
+      description: A link to the next factoid block in the chain.
+      properties:
+        keymr:
+          description: The Key Merkle root of the factoid block.
+          type: string
+        href:
+          description: An API link to the factoid block.
+          type: string
+    ReceiptLong_data:
+      description: Contains the receipt information for the desired entry.
+      example:
+        dblock:
+          keymr: keymr
+          href: href
+          height: 0
+        created_at: created_at
+        merkle_branch:
+        - top: top
+          left: left
+          right: right
+        - top: top
+          left: left
+          right: right
+        eblock:
+          keymr: keymr
+          href: href
+        entry_serialized: entry_serialized
+        entry_hash: entry_hash
+      properties:
+        created_at:
+          description: 'The timestamp for this entry. Sent in [ISO 8601 Format](https://en.wikipedia.org/wiki/ISO_8601).
+            For example: `YYYY-MM-DDThh:mm:ssZ`'
+          type: string
+        entry_serialized:
+          description: The raw data that makes up the entry.
+          type: string
+        entry_hash:
+          description: The unique identitfier of the entry.
+          type: string
+        merkle_branch:
+          description: The branch of the merkle tree that represents this entry. Presented as an array of Merkle nodes.
+          items:
+            $ref: '#/components/schemas/MerkleNode'
+          type: array
+        eblock:
+          $ref: '#/components/schemas/EBlockLink'
+        dblock:
+          $ref: '#/components/schemas/DBlockLink'
+      required:
+      - created_at
+      - dblock
+      - eblock
+      - entry_hash
+      - entry_serialized
+      - merkle_branch
+    AnchorLong_data:
+      description: Contains information about the desired Directory Block Anchor.
+      example:
+        dblock:
+          keymr: keymr
+          href: href
+          height: 0
+        anchors:
+        - window_mr: window_mr
+          block_hash: block_hash
+          created_at: created_at
+          merkle_branch:
+          - top: top
+            left: left
+            right: right
+          - top: top
+            left: left
+            right: right
+          tx_id: tx_id
+          entry_serialized: entry_serialized
+          contract_address: contract_address
+          entry_hash: entry_hash
+          network: bitcoin
+          dblock:
+            keymr: keymr
+            href: href
+            height: 0
+          window_start_height: 0
+          tx_index: 6
+          status: pending
+        - window_mr: window_mr
+          block_hash: block_hash
+          created_at: created_at
+          merkle_branch:
+          - top: top
+            left: left
+            right: right
+          - top: top
+            left: left
+            right: right
+          tx_id: tx_id
+          entry_serialized: entry_serialized
+          contract_address: contract_address
+          entry_hash: entry_hash
+          network: bitcoin
+          dblock:
+            keymr: keymr
+            href: href
+            height: 0
+          window_start_height: 0
+          tx_index: 6
+          status: pending
+      properties:
+        dblock:
+          $ref: '#/components/schemas/DBlockLink'
+        anchors:
+          description: A list of all the anchors of this Directory Block.
+          items:
+            $ref: '#/components/schemas/SingleAnchor'
+          type: array
+      required:
+      - anchors
+      - dblock
   securitySchemes:
     AppId:
       description: You must include a user key in the header of all requests to Factom Connect. If you attempt to communicate with the API without this key, you will trigger an error response.
